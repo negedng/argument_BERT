@@ -92,21 +92,22 @@ def load_single_file(fileID, file_path):
                 originalSentenceArg2 = propositions[j]["text"]
 
                 if "TextPosition" in propositions[i].keys():
-                    if propositions[i]["TextPosition"]["@start"] != "-1":
+                    if(propositions[i]["TextPosition"]["@start"] != "-1" or
+                       propositions[j]["TextPosition"]["@start"] != "-1"):
                         original_text = xmlData["Annotation"]["OriginalText"]
                         sent_tokenize_list = sent_tokenize(original_text)
+                        
+                        if propositions[i]["TextPosition"]["@start"] != "-1":
+                            for sentence in sent_tokenize_list:
 
-                        for sentence in sent_tokenize_list:
-
-                            if propositions[i]["text"] in sentence:
-                                originalSentenceArg1 = sentence
+                                if propositions[i]["text"] in sentence:
+                                    originalSentenceArg1 = sentence
 
                         if propositions[j]["TextPosition"]["@start"] != "-1":
-                            sent_tokenize_list = sent_tokenize(original_text)
 
-                        for sentence in sent_tokenize_list:
-                            if propositions[j]["text"] in sentence:
-                                originalSentenceArg2 = sentence
+                            for sentence in sent_tokenize_list:
+                                if propositions[j]["text"] in sentence:
+                                    originalSentenceArg2 = sentence
                 file_data.append({'argumentationID': argumentationID,
                                   'arg1': propositions[i]["text"],
                                   'originalArg1': originalSentenceArg1,
