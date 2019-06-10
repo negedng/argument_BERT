@@ -126,3 +126,15 @@ def fit_tokenize_length_threshold(proposition):
     else:
         return False
 
+
+def prepare_data_for_training(dataset, model_type=None):
+    """Prepare dataset to training. Starts feature extracting.
+    Returns x_data, y_data"""
+    y_data = dataset['label'].to_numpy()
+    numberOfLabels = np.unique(y_data).shape[0]
+    y_data = np.identity(numberOfLabels)[y_data.astype(int).flatten()]
+
+    x_data = dataset.drop(['label', 'argumentationID'], axis=1)
+
+    return x_data, y_data
+
