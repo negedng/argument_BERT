@@ -137,4 +137,23 @@ def prepare_data_for_training(dataset, model_type=None):
     x_data = dataset.drop(['label', 'argumentationID'], axis=1)
 
     return x_data, y_data
+	
+def change_labels(dataset, attack=False, bidirect=True):
+        """changes the labels depending on the classification task
+            parameter:
+            dataset: pandas dataframe containing the data
+            attack: if true, the attack label will remain in the dataset, default is false
+            bidirect: allow bidirectional relation instead of one directional
+        """
+
+        if not attack:
+            dataset.loc[dataset.label == 2, 'label'] = 1
+            dataset.loc[dataset.label == -2, 'label'] = -1
+
+        if bidirect:
+            dataset.loc[dataset.label == -1, 'label'] = 1
+        else:
+            dataset.loc[dataset.label == -1, 'label'] = 0
+
+        return dataset
 
