@@ -58,3 +58,10 @@ def draw_ROC_curve(y_true, y_pred, verbose=1):
         plt.legend()
         plt.show()
     return fpr, tpr, thr
+    
+def related_unrelated_report(model, features_test, y_test):
+
+    prediction = model.predict(features_test)
+    y_pred = decode_one_hot(prediction)
+    target_names = ['nonrelated', 'related']
+    print(classification_report(y_test, y_pred, target_names=target_names))
