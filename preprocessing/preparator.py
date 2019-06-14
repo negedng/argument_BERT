@@ -39,8 +39,6 @@ def train_test_split(dataset, split_ratio=0.1):
         split_ratio: ratio of the test data
     """
     train_data, test_data = sk_train_test_split(dataset,test_size=split_ratio, random_state=42)
-    train_data = train_data.reset_index()
-    test_data = test_data.reset_index()
     
     x_train, y_train = input_output_split(train_data)
     x_test, y_test = input_output_split(test_data)
