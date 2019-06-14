@@ -19,7 +19,12 @@ def encode_one_hot(y, num_classes=None, dtype='float32'):
 
 def decode_one_hot(y):
     """Returns with the max class"""
-    return np.argmax(y,-1)
+    numberOfClasses = y.shape[1]
+
+    position = np.argmax(y, axis=-1)
+    y_pred = np.identity(numberOfClasses)[position]
+    
+    return y_pred
 
 
 def classification_report_with_threshold(y_true, y_pred,
