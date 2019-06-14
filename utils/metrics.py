@@ -19,6 +19,10 @@ def encode_one_hot(y, num_classes=None, dtype='float32'):
 
 def decode_one_hot(y):
     """Returns with the max class"""
+    return np.argmax(y,-1)
+
+def predict_max(y):
+    """Softmax to hardmax"""
     numberOfClasses = y.shape[1]
 
     position = np.argmax(y, axis=-1)
@@ -67,6 +71,6 @@ def draw_ROC_curve(y_true, y_pred, verbose=1):
 def related_unrelated_report(model, features_test, y_test):
 
     prediction = model.predict(features_test)
-    y_pred = decode_one_hot(prediction)
+    y_pred = predict_max(prediction)
     target_names = ['nonrelated', 'related']
     print(classification_report(y_test, y_pred, target_names=target_names))
