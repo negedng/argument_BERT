@@ -10,8 +10,6 @@ def input_output_split(dataset):
     y_data = np.identity(numberOfLabels)[y_data.astype(int).flatten()]
 
     x_data = dataset.drop(['label', 'argumentationID'], axis=1)
-    if 'index' in x_data.columns:
-        x_data = x_data.drop(['index'],axis=1)
 
     return x_data, y_data
 	
