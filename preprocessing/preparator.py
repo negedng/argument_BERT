@@ -2,7 +2,7 @@ from sklearn.model_selection import train_test_split as sk_train_test_split
 import numpy as np
 import pandas as pd
 
-def prepare_data_for_training(dataset, model_type=None):
+def prepare_data_for_training(dataset):
     """Prepare dataset to training. Starts feature extracting.
     Returns x_data, y_data"""
     y_data = dataset['label'].to_numpy()
@@ -38,9 +38,9 @@ def train_test_split(dataset, split_ratio=0.1):
         dataset: pandas dataframe containing the data
         split_ratio: ratio of the test data
     """
-
-    y_data = dataset.as_matrix(columns=['label'])
-    x_data = dataset.drop(['label', 'argumentationID'], axis=1)
+    
+    x_data, y_data = prepare_data_for_training(dataset)
+    
     x_train, x_test, y_train, y_test = sk_train_test_split(x_data, y_data, test_size=split_ratio, random_state=42, stratify=y_data)
 
     return x_train, x_test, y_train, y_test
