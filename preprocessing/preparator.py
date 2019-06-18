@@ -2,6 +2,7 @@ from sklearn.model_selection import train_test_split as sk_train_test_split
 import numpy as np
 import pandas as pd
 
+
 def input_output_split(dataset):
     """Prepare dataset to training. Starts feature extracting.
     Returns x_data, y_data"""
@@ -12,12 +13,14 @@ def input_output_split(dataset):
     x_data = dataset.drop(['label', 'argumentationID'], axis=1)
 
     return x_data, y_data
-	
+
+
 def change_labels(dataset, attack=False, bidirect=True):
-    """changes the labels depending on the classification task
+    """Changes the labels depending on the classification task
         parameter:
         dataset: pandas dataframe containing the data
-        attack: if true, the attack label will remain in the dataset, default is false
+        attack: if true, the attack label will remain in the dataset,
+            default is false
         bidirect: allow bidirectional relation instead of one directional
     """
 
@@ -32,18 +35,22 @@ def change_labels(dataset, attack=False, bidirect=True):
 
     return dataset
 
+
 def train_test_split(dataset, split_ratio=0.1):
     """Splits the data into training and testing, input and output
         parameter:
         dataset: pandas dataframe containing the data
         split_ratio: ratio of the test data
     """
-    train_data, test_data = sk_train_test_split(dataset,test_size=split_ratio, random_state=42)
-    
+    train_data, test_data = sk_train_test_split(dataset,
+                                                test_size=split_ratio,
+                                                random_state=42)
+
     x_train, y_train = input_output_split(train_data)
     x_test, y_test = input_output_split(test_data)
 
     return x_train, x_test, y_train, y_test
+
 
 def balance_dataset(dataset, balance_ratio):
     """Reduce the number of unrelated data examples to match the related ones.
@@ -58,7 +65,8 @@ def balance_dataset(dataset, balance_ratio):
 
     if relationRatio < RELATION_RATIO:
 
-        print("-----DATA IS UNBALANCED CURRENT SIZE: "+ str(len(dataset)) +" CLASS RATIO: " + str(relationRatio) +" ... BALANCING DATA")
+        print("-----DATA IS UNBALANCED CURRENT SIZE: " + str(len(dataset)) +
+              " CLASS RATIO: " + str(relationRatio) + " ... BALANCING DATA")
 
         shuffled = shuffle(dataset)
 
@@ -72,6 +80,7 @@ def balance_dataset(dataset, balance_ratio):
 
     else:
 
-        print("-----DATASET IS ALREADY BALANCED - CLASS RATIO: " + str(relationRatio)+"-----")
+        print("-----DATASET IS ALREADY BALANCED - CLASS RATIO: " +
+              str(relationRatio) + "-----")
 
         return dataset
