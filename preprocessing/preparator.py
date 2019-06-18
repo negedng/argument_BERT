@@ -44,3 +44,34 @@ def train_test_split(dataset, split_ratio=0.1):
     x_test, y_test = input_output_split(test_data)
 
     return x_train, x_test, y_train, y_test
+
+def balance_dataset(dataset, balance_ratio):
+    """Reduce the number of unrelated data examples to match the related ones.
+        dataset: pandas dataframe containing the data
+        balancing: precentage of the balancing -> 0.5 = equal 50-50 balncing
+    """
+    RELATION_RATIO = balance_ratio
+
+    labelMatrix = dataset.as_matrix(columns=['label'])
+    numberOfRelations = np.count_nonzero(labelMatrix)
+    relationRatio = numberOfRelations/len(dataset)
+
+    if relationRatio < RELATION_RATIO:
+
+        print("-----DATA IS UNBALANCED CURRENT SIZE: "+ str(len(dataset)) +" CLASS RATIO: " + str(relationRatio) +" ... BALANCING DATA")
+
+        shuffled = shuffle(dataset)
+
+        orderedDataset = shuffled.sort_values(by=['label'], ascending=False)
+        cutOff = int((1/RELATION_RATIO)*numberOfRelations)
+
+        balanced = shuffle(orderedDataset.head(cutOff))
+
+        print("-----BALANCED DATASET WITH SIZE: "+str(len(balanced)))
+        return balanced
+
+    else:
+
+        print("-----DATASET IS ALREADY BALANCED - CLASS RATIO: " + str(relationRatio)+"-----")
+
+        return dataset
