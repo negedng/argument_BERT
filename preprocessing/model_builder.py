@@ -1,4 +1,4 @@
-import feature_extractor
+from argument_BERT.preprocessing import feature_extractor
 import timeit
 
 def argue_feature_build(dataset):
