@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split as sk_train_test_split
 import numpy as np
 import pandas as pd
-from sklearn.utils import shuffle as sk.shuffle
+from sklearn.utils import shuffle as sk_shuffle
 
 
 def input_output_split(dataset):
@@ -69,12 +69,12 @@ def balance_dataset(dataset, balance_ratio):
         print("-----DATA IS UNBALANCED CURRENT SIZE: " + str(len(dataset)) +
               " CLASS RATIO: " + str(relationRatio) + " ... BALANCING DATA")
 
-        shuffled = sk.shuffle(dataset)
+        shuffled = sk_shuffle(dataset)
 
         orderedDataset = shuffled.sort_values(by=['label'], ascending=False)
         cutOff = int((1/RELATION_RATIO)*numberOfRelations)
 
-        balanced = sk.shuffle(orderedDataset.head(cutOff))
+        balanced = sk_shuffle(orderedDataset.head(cutOff))
 
         print("-----BALANCED DATASET WITH SIZE: "+str(len(balanced)))
         return balanced

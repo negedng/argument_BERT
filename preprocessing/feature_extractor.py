@@ -2,7 +2,7 @@ import nltk
 import numpy as np
 import pandas as pd
 import gensim
-from keras.preprocessing.sequence import pad_sequences as kp.pad_sequences
+from keras.preprocessing.sequence import pad_sequences as kp_pad_sequences
 
 
 WORD2WEC_EMBEDDING_FILE = '/root/input/GoogleNews-vectors-negative300.bin.gz'
@@ -45,7 +45,7 @@ def word_vector_feature(dataset, propositionSet, parsedPropositions):
         wordVectorFeature.append(propositionVector)
 
     wordVectorFeature = np.array(wordVectorFeature)
-    wordVectorFeature = kp.pad_sequences(wordVectorFeature, value=0, padding='post', dtype=float)
+    wordVectorFeature = kp_pad_sequences(wordVectorFeature, value=0, padding='post', dtype=float)
 
     wordVectorFrame = pd.DataFrame({"arg1": propositionSet, "vector1": wordVectorFeature.tolist()})
     dataset = pd.merge(dataset, wordVectorFrame, on='arg1')
