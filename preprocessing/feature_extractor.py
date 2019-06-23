@@ -25,7 +25,7 @@ def get_propositions(dataset):
     return propositionSet, parsedPropositions
     
 
-def word_vector_feature(dataset, propositionSet, parsedPropositions):
+def add_word_vector_feature(dataset, propositionSet, parsedPropositions):
     """Add word2vec feature to the dataset
     """
 
