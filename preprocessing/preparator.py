@@ -60,7 +60,7 @@ def balance_dataset(dataset, balance_ratio):
     """
     RELATION_RATIO = balance_ratio
 
-    labelMatrix = dataset.as_matrix(columns=['label'])
+    labelMatrix = dataset['label'].to_numpy()
     numberOfRelations = np.count_nonzero(labelMatrix)
     relationRatio = numberOfRelations/len(dataset)
 
