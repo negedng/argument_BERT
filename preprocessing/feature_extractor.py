@@ -255,6 +255,7 @@ def add_bert_embeddings(dataset, propositionSet, bert_embedding=None):
     embeddingSet = bert_embedding(propositionSet)
   
     emb_frame = pd.DataFrame(data=embeddingSet, columns=["proposition", "bert1"])
+    emb_frame["bert1"] = kp_pad_sequences(emb_frame["bert1"], value=0, padding='post', dtype=float)
     emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
     emb_frame = emb_frame.drop(columns=["proposition"])
   
