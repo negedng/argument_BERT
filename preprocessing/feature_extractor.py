@@ -79,7 +79,7 @@ def add_pos_feature(dataset, propositionSet, parsedPropositions):
     current = 0
     for proposition in parsedPropositions:
 
-        propositionPOS = self.get_one_hot_pos(proposition, lb)
+        propositionPOS = get_one_hot_pos(proposition, lb)
         propositionPOSList.append(propositionPOS)
 
     propositionPOSPadded = kp_pad_sequences(propositionPOSList, value=0, padding='post')
