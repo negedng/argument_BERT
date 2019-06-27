@@ -35,10 +35,8 @@ def select_argue_features(dataset,
     first_iteration = True
     
     for feature in sentence_feature_list:
-        print(feature)
         next_f1 = np.stack(dataset[str(feature+'1')].to_numpy().ravel())
         next_f2 = np.stack(dataset[str(feature+'2')].to_numpy().ravel())
-        print(next_f1[:10])
         if first_iteration:
             sentence1 = next_f1
         else:
