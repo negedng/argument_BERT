@@ -256,9 +256,8 @@ def add_bert_embeddings(dataset, propositionSet, sentence_feature=True, token_fe
     embeddingSet = bert_embedding(propositionSet, filter_spec_tokens=False)
     
     if sentence_feature:
-        embs1 = np.array(embeddingSet)[:,1,0] # [CLS] tag to sentence embedding
-        embs2 = np.empty((embs1.shape[0],), dtype=np.object)
-        for i in range(embs1.shape[0]): embs2[i] = embs1[i,:]
+        embs3d = np.array(embeddingSet)[:,1]
+        embs1 = [x[0] for x in embs3d]
         emb_frame = pd.DataFrame(embs1, columns=["bertArg1"])
         
         emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
