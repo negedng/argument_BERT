@@ -1,7 +1,7 @@
 ####
 #
 # Some features based on Tobias Milz's ArguE project. 
-# See more: 
+# See more: https://github.com/Milzi/ArguE
 #
 ####
 
@@ -20,9 +20,10 @@ WORD2WEC_EMBEDDING_FILE = '/root/input/GoogleNews-vectors-negative300.bin.gz'
 PREMISE_FILE = current_dir + "/premise_indicator.txt"
 CLAIM_FILE = current_dir + "/claim_indicator.txt"
 
-def get_propositions(dataset):
+def get_propositions(dataset, tokenizer=nltk.tokenize.word_tokenize):
     """Parse propositions
     dataset: the original dataframe
+    tokenizer: nltk.tokenize.word_tokenize, bert-embedding.tokenizer, etc.
     Output:
         propositionSet: list of the propositions of the arg1
         parsedPropositions: parsed prop. in the arg1
@@ -32,7 +33,8 @@ def get_propositions(dataset):
     parsedPropositions = list()
 
     for proposition in propositionSet:
-        words = nltk.tokenize.word_tokenize(proposition)
+        if(
+        words = tokenizer(proposition)
         parsedPropositions.append(nltk.pos_tag(words))
 
     return propositionSet, parsedPropositions
@@ -193,7 +195,7 @@ def read_key_words(file):
 
 
 def add_token_feature(dataset, propositionSet, parsedPropositions):
-    """Add list of propositions and length of propositions to dataset"""
+    """Add number of propositions in the arguments of the dataset"""
 
     numberOfTokens = list()
 
