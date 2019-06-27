@@ -248,26 +248,38 @@ def add_same_sentence_feature(dataset):
     return dataset
 
 
-def add_bert_embeddings(dataset, propositionSet, bert_embedding=None):
+def add_bert_embeddings(dataset, propositionSet, sentence_feature=True, token_feature=True, bert_embedding=None):
     """Add bert embeddings to the dataset. Use matching tokenizer!"""
     if(bert_embedding is None):
         print("Warning! Match tokenizer to have the same propositions!")
         bert_embedding = BertEmbedding(model='bert_12_768_12', dataset_name='book_corpus_wiki_en_cased')
     
-    embeddingSet = bert_embedding(propositionSet)
+    embeddingSet = bert_embedding(propositionSet, filter_spec_tokens=False)
     
-    embs3d = np.array(embeddingSet)[:,1]
-    embs3d = kp_pad_sequences(embs3d, value=0, padding='post', dtype=float)
-    print(np.shape(embs3d))
-    embs2d = np.empty((embs3d.shape[0],), dtype=np.object)
-    for i in range(embs3d.shape[0]): embs2d[i] = embs3d[i,:,:]
-    print(np.shape(embs2d))
-    emb_frame = pd.DataFrame(embs2d, columns=["bert1"])
+    if sentence_feature:
+        embs1 = np.array(embeddingSet)[:,1,0] # [CLS] tag to sentence embedding
+        embs2 = np.empty((embs1.shape[0],), dtype=np.object)
+        for i in range(embs1.shape[0]): embs2[i] = embs1[i,:]
+        emb_frame = pd.DataFrame(embs1, columns=["bertArg1"])
+        
+        emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
   
-    emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
+        dataset = pd.merge(dataset, emb_frame, on="arg1")
+        emb_frame = emb_frame.rename(columns={"arg1":"arg2","bertArg1":"bertArg2"})
+        dataset = pd.merge(dataset, emb_frame, on="arg2")
+
+    
+    if token_feature:
+        embs3d = np.array(embeddingSet)[:,1]
+        embs3d = kp_pad_sequences(embs3d, value=0, padding='post', dtype=float)
+        embs2d = np.empty((embs3d.shape[0],), dtype=np.object)
+        for i in range(embs3d.shape[0]): embs2d[i] = embs3d[i,:,:]
+        emb_frame = pd.DataFrame(embs2d, columns=["bertVector1"])
   
-    dataset = pd.merge(dataset, emb_frame, on="arg1")
-    emb_frame = emb_frame.rename(columns={"arg1":"arg2","bert1":"bert2"})
-    dataset = pd.merge(dataset, emb_frame, on="arg2")
+        emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
+  
+        dataset = pd.merge(dataset, emb_frame, on="arg1")
+        emb_frame = emb_frame.rename(columns={"arg1":"arg2","bertVector1":"bertVector2"})
+        dataset = pd.merge(dataset, emb_frame, on="arg2")
 
     return dataset
