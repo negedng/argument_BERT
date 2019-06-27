@@ -32,21 +32,23 @@ def select_argue_features(dataset,
     
     sentence1 = np.array([])
     sentence2 = np.array([])
+    first_iteration = True
     
     for feature in sentence_feature_list:
         
         next_f1 = np.stack(dataset[(feature+'1')].to_numpy().ravel())
         next_f2 = np.stack(dataset[(feature+'2')].to_numpy().ravel())
         
-        if(sentence1.size==0):
+        if first_iteration:
             sentence1 = next_f1
         else:
             sentence1 = np.concatenate((sentence1, next_f1), axis=-1)
-        if(sentence2.size==0):
+        if first_iteration:
             sentence2 = next_f2
         else:
             sentence2 = np.concatenate((sentence2, next_f2), axis=-1)        
-    
+        first_iteration = False
+        
     sharedFeatures = dataset[shared_feature_list]
     
     return sentence1, sentence2, sharedFeatures
