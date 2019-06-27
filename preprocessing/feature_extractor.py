@@ -86,7 +86,6 @@ def add_pos_feature(dataset, propositionSet, parsedPropositions):
         propositionPOSList.append(propositionPOS)
 
     propositionPOSPadded = kp_pad_sequences(propositionPOSList, value=0, padding='post')
-    print(np.shape(propositionPOSPadded))
     
     posFrame = pd.DataFrame({"arg1":propositionSet, "pos1": propositionPOSPadded.tolist()})
     dataset = pd.merge(dataset, posFrame, on='arg1')

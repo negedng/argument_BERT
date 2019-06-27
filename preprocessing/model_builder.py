@@ -73,8 +73,8 @@ def build_simple_w2v_LSTM(input_dim, output_dim=2,
 
 
 def build_argue_RNN(lstm_input_dim, sharedFeatures_input_dim, output_dim=2,
-              units_LSTM=16, units_Dense=500,
-              loss='binary_crossentropy', optimizer='adam'):
+                    units_LSTM=16, units_Dense=500,
+                    loss='binary_crossentropy', optimizer='adam'):
     """ArguE model build"""
 
     sentence1 = Input(lstm_input_dim, name="sentence1")
@@ -91,3 +91,5 @@ def build_argue_RNN(lstm_input_dim, sharedFeatures_input_dim, output_dim=2,
     model.compile(loss=loss, optimizer=optimizer, metrics=['accuracy'])
     
     return model
+    
+    
