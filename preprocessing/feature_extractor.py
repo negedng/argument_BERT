@@ -104,8 +104,8 @@ def get_one_hot_pos(parsedProposition, label_binarizer):
 def add_keyword_feature(dataset, propositionSet):
     """Add premise and claim flag for every proposition"""
 
-    premise_list = read_key_words((current_dir + PREMISE_FILE))
-    claim_list = read_key_words((current_dir + CLAIM_FILE))
+    premise_list = read_key_words(PREMISE_FILE)
+    claim_list = read_key_words(CLAIM_FILE)
 
     keyWordFeatureList = list()
 
