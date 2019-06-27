@@ -33,7 +33,6 @@ def get_propositions(dataset, tokenizer=nltk.tokenize.word_tokenize):
     parsedPropositions = list()
 
     for proposition in propositionSet:
-        if(
         words = tokenizer(proposition)
         parsedPropositions.append(nltk.pos_tag(words))
 
