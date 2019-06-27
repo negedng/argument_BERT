@@ -262,4 +262,4 @@ def add_bert_embeddings(dataset, propositionSet, bert_embedding=None):
     emb_frame = emb_frame.rename(columns={"arg1":"arg2","bert1":"bert2"})
     dataset = pd.merge(dataset, emb_frame, on="arg2")
 
-  return dataset
+    return dataset
