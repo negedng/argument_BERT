@@ -30,19 +30,19 @@ def select_argue_features(dataset,
                           sentence_feature_list=['vector', 'pos']):
     """Select features to match ArguE model setup"""
     
-    sentence1 = None
-    sentence2 = None
+    sentence1 = np.array([])
+    sentence2 = np.array([])
     
     for feature in sentence_feature_list:
         
         next_f1 = np.stack(dataset[(feature+'1')].to_numpy().ravel())
         next_f2 = np.stack(dataset[(feature+'2')].to_numpy().ravel())
         
-        if(type(sententce1) is not np.ndarray):
+        if(sentence1.size==0):
             sentence1 = next_f1
         else:
             sentence1 = np.concatenate((sentence1, next_f1), axis=-1)
-        if(type(sententce2) is not np.ndarray):
+        if(sentence2.size==0):
             sentence2 = next_f2
         else:
             sentence2 = np.concatenate((sentence2, next_f2), axis=-1)        
