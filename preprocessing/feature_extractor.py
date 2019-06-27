@@ -40,11 +40,11 @@ def get_propositions(dataset, tokenizer=nltk.tokenize.word_tokenize):
     return propositionSet, parsedPropositions
     
 
-def add_word_vector_feature(dataset, propositionSet, parsedPropositions):
+def add_word_vector_feature(dataset, propositionSet, parsedPropositions, word2VecModel=None):
     """Add word2vec feature to the dataset
     """
-
-    word2VecModel = gensim.models.KeyedVectors.load_word2vec_format(WORD2WEC_EMBEDDING_FILE, binary=True)
+    if word2VecModel is None:
+        word2VecModel = gensim.models.KeyedVectors.load_word2vec_format(WORD2WEC_EMBEDDING_FILE, binary=True)
 
     wordVectorFeature = list()
     feature_vector = np.zeros(300)
@@ -252,12 +252,17 @@ def add_bert_embeddings(dataset, propositionSet, bert_embedding=None):
     if(bert_embedding is None):
         print("Warning! Match tokenizer to have the same propositions!")
         bert_embedding = BertEmbedding(model='bert_12_768_12', dataset_name='book_corpus_wiki_en_cased')
+    
     embeddingSet = bert_embedding(propositionSet)
+    
+    embs3d = np.array(embeddingSet)[:,1]
+    embs3d = kp_pad_sequences(embs3d, value=0, padding='post', dtype=float)
+    embs2d = np.empty((embs3d.shape[0],), dtype=np.object)
+    for i in range(embs3d.shape[0]): embs2d[i] = embs3d[i,:,:]
+
+    pd.DataFrame(embs2d, columns=["bert1"])
   
-    emb_frame = pd.DataFrame(data=embeddingSet, columns=["proposition", "bert1"])
-    emb_frame["bert1"] = kp_pad_sequences(emb_frame["bert1"], value=0, padding='post', dtype=float)
     emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
-    emb_frame = emb_frame.drop(columns=["proposition"])
   
     dataset = pd.merge(dataset, emb_frame, on="arg1")
     emb_frame = emb_frame.rename(columns={"arg1":"arg2","bert1":"bert2"})
