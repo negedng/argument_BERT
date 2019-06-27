@@ -13,6 +13,7 @@ from keras.preprocessing.sequence import pad_sequences as kp_pad_sequences
 from sklearn.preprocessing import LabelBinarizer
 import os
 import inspect
+import re
 
 current_dir = os.path.dirname(inspect.stack()[0][1])
 WORD2WEC_EMBEDDING_FILE = '/root/input/GoogleNews-vectors-negative300.bin.gz'
