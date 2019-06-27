@@ -28,6 +28,9 @@ def select_argue_features(dataset, shared_feature_list=['claimIndicatorArg1',
                                                         'tokensArg2']):
     """Select features to match ArguE model setup"""
     
+    x_dataFrame = dataset.drop(['label', 'argumentationID'], axis=1)
+
+    
     sharedFeatures = x_dataFrame.as_matrix(columns=shared_feature_list)
     sentence1Vector = np.stack(x_dataFrame.as_matrix(columns=['vector1']).ravel())
     sentence2Vector = np.stack(x_dataFrame.as_matrix(columns=['vector2']).ravel())
@@ -40,7 +43,7 @@ def select_argue_features(dataset, shared_feature_list=['claimIndicatorArg1',
     return sentence1, sentence2, sharedFeatures
     
     
-def simple_w2v_LSTM(input_dim, output_dim=2,
+def build_simple_w2v_LSTM(input_dim, output_dim=2,
                     units_LSTM=16, units_Dense=500,
                     loss='binary_crossentropy', optimizer='adam'):
     """Set up a simple w2v lstm model
@@ -60,7 +63,7 @@ def simple_w2v_LSTM(input_dim, output_dim=2,
     return model
 
 
-def argue_RNN(lstm_input_dim, sharedFeatures_input_dim, output_dim=2,
+def build_argue_RNN(lstm_input_dim, sharedFeatures_input_dim, output_dim=2,
               units_LSTM=16, units_Dense=500,
               loss='binary_crossentropy', optimizer='adam'):
     """ArguE model build"""
