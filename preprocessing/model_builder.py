@@ -28,14 +28,12 @@ def select_argue_features(dataset, shared_feature_list=['claimIndicatorArg1',
                                                         'tokensArg2']):
     """Select features to match ArguE model setup"""
     
-    x_dataFrame = dataset.drop(['label', 'argumentationID'], axis=1)
-
     
-    sharedFeatures = x_dataFrame.as_matrix(columns=shared_feature_list)
-    sentence1Vector = np.stack(x_dataFrame.as_matrix(columns=['vector1']).ravel())
-    sentence2Vector = np.stack(x_dataFrame.as_matrix(columns=['vector2']).ravel())
-    sentence1Pos = np.stack(x_dataFrame.as_matrix(columns=['pos1']).ravel())
-    sentence2Pos = np.stack(x_dataFrame.as_matrix(columns=['pos2']).ravel())
+    sharedFeatures = dataset[shared_feature_list]
+    sentence1Vector = np.stack(dataset['vector1'].to_numpy().ravel())
+    sentence2Vector = np.stack(dataset['vector2'].to_numpy().ravel())
+    sentence1Pos = np.stack(dataset['pos1'].to_numpy().ravel())
+    sentence2Pos = np.stack(dataset['pos2'].to_numpy().ravel())
 
     sentence1 = np.concatenate((sentence1Vector, sentence1Pos), axis=-1)
     sentence2 = np.concatenate((sentence2Vector, sentence2Pos), axis=-1)
