@@ -86,7 +86,7 @@ def add_pos_feature(dataset, propositionSet, parsedPropositions):
         propositionPOSList.append(propositionPOS)
 
     propositionPOSPadded = kp_pad_sequences(propositionPOSList, value=0, padding='post')
-    np.shape(propositionPOSPadded)
+    print(np.shape(propositionPOSPadded))
     
     posFrame = pd.DataFrame({"arg1":propositionSet, "pos1": propositionPOSPadded.tolist()})
     dataset = pd.merge(dataset, posFrame, on='arg1')
@@ -258,10 +258,10 @@ def add_bert_embeddings(dataset, propositionSet, bert_embedding=None):
     
     embs3d = np.array(embeddingSet)[:,1]
     embs3d = kp_pad_sequences(embs3d, value=0, padding='post', dtype=float)
-    np.shape(embs3d)
+    print(np.shape(embs3d))
     embs2d = np.empty((embs3d.shape[0],), dtype=np.object)
     for i in range(embs3d.shape[0]): embs2d[i] = embs3d[i,:,:]
-    np.shape(embs2d)
+    print(np.shape(embs2d))
     emb_frame = pd.DataFrame(embs2d, columns=["bert1"])
   
     emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
