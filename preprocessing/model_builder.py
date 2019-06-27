@@ -38,11 +38,11 @@ def select_argue_features(dataset,
         next_f1 = np.stack(dataset[(feature+'1')].to_numpy().ravel())
         next_f2 = np.stack(dataset[(feature+'2')].to_numpy().ravel())
         
-        if(sentence1==None):
+        if(sentence1 is None):
             sentence1 = next_f1
         else:
             sentence1 = np.concatenate((sentence1, next_f1), axis=-1)
-        if(sentence2==None):
+        if(sentence2 is None):
             sentence2 = next_f2
         else:
             sentence2 = np.concatenate((sentence2, next_f2), axis=-1)        
