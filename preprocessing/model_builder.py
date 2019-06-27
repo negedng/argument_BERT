@@ -17,26 +17,37 @@ def select_w2v_features(dataset):
     return arg1vectors, arg2vectors
 
 
-def select_argue_features(dataset, shared_feature_list=['claimIndicatorArg1',
-                                                        'premiseIndicatorArg1',
-                                                        'claimIndicatorArg2',
-                                                        'premiseIndicatorArg2',
-                                                        'sameSentence',
-                                                        'sharedNouns',
-                                                        'numberOfSharedNouns',
-                                                        'tokensArg1',
-                                                        'tokensArg2']):
+def select_argue_features(dataset,
+                          shared_feature_list=['claimIndicatorArg1',
+                                               'premiseIndicatorArg1',
+                                               'claimIndicatorArg2',
+                                               'premiseIndicatorArg2',
+                                               'sameSentence',
+                                               'sharedNouns',
+                                               'numberOfSharedNouns',
+                                               'tokensArg1',
+                                               'tokensArg2'],
+                          sentence_feature_list=['vector', 'pos']):
     """Select features to match ArguE model setup"""
     
+    sentence1 = None
+    sentence2 = None
+    
+    for feature in sentence_feature_list:
+        
+        next_f1 = np.stack(dataset[(feature+'1')].to_numpy().ravel())
+        next_f2 = np.stack(dataset[(feature+'2')].to_numpy().ravel())
+        
+        if(sentence1==None):
+            sentence1 = next_f1
+        else:
+            sentence1 = np.concatenate((sentence1, next_f1), axis=-1)
+        if(sentence2==None):
+            sentence2 = next_f2
+        else:
+            sentence2 = np.concatenate((sentence2, next_f2), axis=-1)        
     
     sharedFeatures = dataset[shared_feature_list]
-    sentence1Vector = np.stack(dataset['vector1'].to_numpy().ravel())
-    sentence2Vector = np.stack(dataset['vector2'].to_numpy().ravel())
-    sentence1Pos = np.stack(dataset['pos1'].to_numpy().ravel())
-    sentence2Pos = np.stack(dataset['pos2'].to_numpy().ravel())
-
-    sentence1 = np.concatenate((sentence1Vector, sentence1Pos), axis=-1)
-    sentence2 = np.concatenate((sentence2Vector, sentence2Pos), axis=-1)
     
     return sentence1, sentence2, sharedFeatures
     

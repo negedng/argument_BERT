@@ -14,6 +14,7 @@ from sklearn.preprocessing import LabelBinarizer
 import os
 import inspect
 import re
+import bert_embedding
 
 current_dir = os.path.dirname(inspect.stack()[0][1])
 WORD2WEC_EMBEDDING_FILE = '/root/input/GoogleNews-vectors-negative300.bin.gz'
@@ -244,3 +245,21 @@ def add_same_sentence_feature(dataset):
     dataset["sameSentence"] = dataset[['originalArg1','arg2']].apply(lambda row: int(bool(row['arg2'] in row['originalArg1'])), axis=1)
 
     return dataset
+
+
+def add_bert_embeddings(dataset, propositionSet, bert_embedding=None):
+    """Add bert embeddings to the dataset. Use matching tokenizer!"""
+    if(bert_embedding==None):
+        print("Warning! Match tokenizer to have the same propositions!")
+        bert_embedding = BertEmbedding(model='bert_12_768_12', dataset_name='book_corpus_wiki_en_cased')
+    embeddingSet = bert_embedding(propositionSet)
+  
+    emb_frame = pd.DataFrame(data=embeddingSet, columns=["proposition", "bert1"])
+    emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
+    emb_frame = emb_frame.drop(columns=["proposition"])
+  
+    dataset = pd.merge(dataset, emb_frame, on="arg1")
+    emb_frame = emb_frame.rename(columns={"arg1":"arg2","bert1":"bert2"})
+    dataset = pd.merge(dataset, emb_frame, on="arg2")
+
+  return dataset
