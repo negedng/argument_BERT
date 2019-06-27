@@ -257,8 +257,10 @@ def add_bert_embeddings(dataset, propositionSet, sentence_feature=True, token_fe
     
     if sentence_feature:
         embs3d = np.array(embeddingSet)[:,1]
-        embs1 = [x[0] for x in embs3d]
-        emb_frame = pd.DataFrame(embs1, columns=["bertArg1"])
+        embs1 = np.array([x[0] for x in embs3d])
+        embs2d = np.empty((embs1.shape[0],), dtype=np.object)
+        for i in range(embs1.shape[0]): embs2d[i] = embs1[i,:]
+        emb_frame = pd.DataFrame(embs2d, columns=["bertArg1"])
         
         emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
   
