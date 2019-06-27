@@ -50,8 +50,26 @@ def select_argue_features(dataset,
     sharedFeatures = dataset[shared_feature_list]
     
     return sentence1, sentence2, sharedFeatures
+
+
+def select_FFNN_features(dataset,
+                         shared_feature_list=['claimIndicatorArg1',
+                                              'premiseIndicatorArg1',
+                                              'claimIndicatorArg2',
+                                              'premiseIndicatorArg2',
+                                              'sameSentence',
+                                              'sharedNouns',
+                                              'numberOfSharedNouns',
+                                              'tokensArg1',
+                                              'tokensArg2'],):
+    """Only global features"""
+    sent1 = np.stack(dataset["bertArg1"].to_numpy().ravel())
+    sent2 = np.stack(dataset["bertArg2"].to_numpy().ravel())
+    sharedFeatures = dataset[shared_feature_list]
     
-    
+    return sent1, sent2, sharedFeatures
+
+
 def build_simple_w2v_LSTM(input_dim, output_dim=2,
                     units_LSTM=16, units_Dense=500,
                     loss='binary_crossentropy', optimizer='adam'):
@@ -91,5 +109,47 @@ def build_argue_RNN(lstm_input_dim, sharedFeatures_input_dim, output_dim=2,
     model.compile(loss=loss, optimizer=optimizer, metrics=['accuracy'])
     
     return model
+
+
+def build_FFNN(shared_feature_dim, output_dim=2,
+               no_separate_layers=2, separate_start_units=300,
+               no_concat_layers=2, concat_start_units=300,
+               layer_decrease_rate=0.4, dropout_rate=0.2,
+               has_shared_features=True):
+    """Model using sentence level embeddings of the 2 arguments 
+       and shared features"""
+    sentence1 = Input((768,), name="sentence1") # See BERT for input dim
+    sentence2 = Input((768,), name="sentence2")
+    if has_shared_features:
+      sharedF = Input(shared_feature_dim, name="sharedFeatures")
     
+    separate_units = separate_start_units
+    dense1 = Dense(separate_units, activation='sigmoid')(sentence1)
+    dense2 = Dense(separate_units, activation='sigmoid')(sentence2)
+    for i in range(1,no_separate_layers):
+        separate_units = int(separate_units*layer_decrease_rate)
+        dense1 = Dropout(rate=dropout_rate)(dense1)
+        dense2 = Dropout(rate=dropout_rate)(dense2)
+        dense1 = Dense(separate_units, activation='sigmoid')(dense1)
+        dense2 = Dense(separate_units, activation='sigmoid')(dense2)
     
+    if has_shared_features:
+        concatenateLayer = concatenate([dense1, dense2, sharedF], axis=-1)
+    else:
+        concatenateLayer = concatenate([dense1, dense2], axis=-1)
+    concat_units = concat_start_units
+    dense = Dense(concat_units, activation='sigmoid')(concatenateLayer)
+    for i in range(1,no_concat_layers):
+        concat_units = int(concat_units*layer_decrease_rate)
+        dense = Dropout(rate=dropout_rate)(dense)
+        dense = Dense(concat_units, activation='sigmoid')(dense)
+        
+    softmax = Dense(2, activation='softmax')(dense)
+    
+    if has_shared_features:
+        model = Model(inputs=[sentence1, sentence2, sharedF], outputs=[softmax])
+    else:
+        model = Model(inputs=[sentence1, sentence2], outputs=[softmax])      
+    model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy'])
+    
+    return model
