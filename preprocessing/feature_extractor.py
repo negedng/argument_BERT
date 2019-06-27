@@ -260,7 +260,7 @@ def add_bert_embeddings(dataset, propositionSet, bert_embedding=None):
     embs2d = np.empty((embs3d.shape[0],), dtype=np.object)
     for i in range(embs3d.shape[0]): embs2d[i] = embs3d[i,:,:]
 
-    pd.DataFrame(embs2d, columns=["bert1"])
+    emb_frame = pd.DataFrame(embs2d, columns=["bert1"])
   
     emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
   
