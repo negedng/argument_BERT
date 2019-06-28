@@ -40,7 +40,7 @@ def get_propositions(dataset, tokenizer=nltk.tokenize.word_tokenize):
     return propositionSet, parsedPropositions
     
 
-def add_word_vector_feature(dataset, propositionSet, parsedPropositions, word2VecModel=None):
+def add_word_vector_feature(dataset, propositionSet, parsedPropositions, word2VecModel=None, pad_no=35):
     """Add word2vec feature to the dataset
     """
     if word2VecModel is None:
@@ -60,7 +60,7 @@ def add_word_vector_feature(dataset, propositionSet, parsedPropositions, word2Ve
         wordVectorFeature.append(propositionVector)
 
     wordVectorFeature = np.array(wordVectorFeature)
-    wordVectorFeature = kp_pad_sequences(wordVectorFeature, value=0, padding='post', dtype=float)
+    wordVectorFeature = kp_pad_sequences(wordVectorFeature, maxlen=pad_no, value=0, padding='post', dtype=float)
 
     wordVectorFrame = pd.DataFrame({"arg1": propositionSet, "vector1": wordVectorFeature.tolist()})
     dataset = pd.merge(dataset, wordVectorFrame, on='arg1')
@@ -70,7 +70,7 @@ def add_word_vector_feature(dataset, propositionSet, parsedPropositions, word2Ve
     return dataset
 
     
-def add_pos_feature(dataset, propositionSet, parsedPropositions):
+def add_pos_feature(dataset, propositionSet, parsedPropositions, pad_no=35):
     """Add Part-of-Speech features for every proposition"""
 
     tagdict = nltk.data.load('help/tagsets/upenn_tagset.pickle')
@@ -85,7 +85,7 @@ def add_pos_feature(dataset, propositionSet, parsedPropositions):
         propositionPOS = get_one_hot_pos(proposition, lb)
         propositionPOSList.append(propositionPOS)
 
-    propositionPOSPadded = kp_pad_sequences(propositionPOSList, value=0, padding='post')
+    propositionPOSPadded = kp_pad_sequences(propositionPOSList, maxlen=pad_no, value=0, padding='post')
     
     posFrame = pd.DataFrame({"arg1":propositionSet, "pos1": propositionPOSPadded.tolist()})
     dataset = pd.merge(dataset, posFrame, on='arg1')
@@ -247,7 +247,7 @@ def add_same_sentence_feature(dataset):
     return dataset
 
 
-def add_bert_embeddings(dataset, propositionSet, sentence_feature=True, token_feature=True, bert_embedding=None):
+def add_bert_embeddings(dataset, propositionSet, sentence_feature=True, token_feature=True, bert_embedding=None, pad_no=35):
     """Add bert embeddings to the dataset. Use matching tokenizer!"""
     if(bert_embedding is None):
         print("Warning! Match tokenizer to have the same propositions!")
@@ -271,7 +271,7 @@ def add_bert_embeddings(dataset, propositionSet, sentence_feature=True, token_fe
     
     if token_feature:
         embs3d = np.array(embeddingSet)[:,1]
-        embs3d = kp_pad_sequences(embs3d, value=0, padding='post', dtype=float)
+        embs3d = kp_pad_sequences(embs3d,maxlen=pad_no, value=0, padding='post', dtype=float)
         embs2d = np.empty((embs3d.shape[0],), dtype=np.object)
         for i in range(embs3d.shape[0]): embs2d[i] = embs3d[i,:,:]
         emb_frame = pd.DataFrame(embs2d, columns=["bertVector1"])
