@@ -1,7 +1,7 @@
 from argument_BERT.preprocessing import feature_extractor
 import timeit
 import numpy as np
-from keras.layers import LSTM, Input, concatenate, Dense
+from keras.layers import LSTM, Input, concatenate, Dense, Dropout
 from keras.models import Model, Sequential
 
 
