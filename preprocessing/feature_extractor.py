@@ -115,7 +115,8 @@ def add_keyword_feature(dataset, propositionSet):
     for proposition in propositionSet:
         try:
             originalSentence = dataset.loc[dataset['arg1'] == proposition]['originalArg1'].iloc[0]
-        except:
+        except e:
+            print(e)
             print(proposition)
         keyWordFeatureList.append(including_keywords_features(proposition, originalSentence, premise_list, claim_list))
 
