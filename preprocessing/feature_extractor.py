@@ -110,24 +110,14 @@ def add_keyword_feature(dataset, propositionSet):
     premise_list = read_key_words(PREMISE_FILE)
     claim_list = read_key_words(CLAIM_FILE)
 
-    keyWordFeatureList = list()
-
-    for proposition in propositionSet:
-        try:
-            originalSentence = dataset.loc[dataset['arg1'] == proposition]['originalArg1'].iloc[0]
-        except e:
-            print(e)
-            print(proposition)
-        keyWordFeatureList.append(including_keywords_features(proposition, originalSentence, premise_list, claim_list))
-
-    keywordFeatureFrame = pd.DataFrame(data=keyWordFeatureList, columns=["claimIndicatorArg1", "premiseIndicatorArg1"])
-    keywordFeatureFrame["arg1"] = propositionSet
-
-    dataset = pd.merge(dataset, keywordFeatureFrame, on='arg1')
-
-    keywordFeatureFrame = keywordFeatureFrame.rename(columns = {'arg1':'arg2', 'claimIndicatorArg1':'claimIndicatorArg2', 'premiseIndicatorArg1': 'premiseIndicatorArg2'})
-
-    return pd.merge(dataset, keywordFeatureFrame, on='arg2')
+    keywords = dataset[['arg1','originalArg1']].apply(lambda row: including_keywords_features(row['arg1'], row['originalArg1'], premise_list, claim_list), axis=1)
+    keywords = pd.DataFrame(keywords.tolist(), columns=["claimIndicatorArg1", "premiseIndicatorArg1"])
+    keywords["arg1"] = dataset.loc[:,'arg1']
+    
+    dataset = pd.merge(dataset, keywords, on='arg1')
+    keywords.rename(columns = {'arg1':'arg2', 'claimIndicatorArg1':'claimIndicatorArg2', 'premiseIndicatorArg1': 'premiseIndicatorArg2'})
+    
+    return pd.merge(dataset, keywords, on='arg2')
 
 
 def including_keywords_features(proposition, original,
