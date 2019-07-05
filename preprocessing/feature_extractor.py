@@ -115,7 +115,7 @@ def add_keyword_feature(dataset, propositionSet):
     keywords["arg1"] = dataset.loc[:,'arg1']
     
     dataset = pd.merge(dataset, keywords, on='arg1')
-    keywords.rename(columns = {'arg1':'arg2', 'claimIndicatorArg1':'claimIndicatorArg2', 'premiseIndicatorArg1': 'premiseIndicatorArg2'})
+    keywords = keywords.rename(columns = {'arg1':'arg2', 'claimIndicatorArg1':'claimIndicatorArg2', 'premiseIndicatorArg1': 'premiseIndicatorArg2'})
     
     return pd.merge(dataset, keywords, on='arg2')
 
