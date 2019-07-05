@@ -113,8 +113,10 @@ def add_keyword_feature(dataset, propositionSet):
     keyWordFeatureList = list()
 
     for proposition in propositionSet:
-
-        originalSentence = dataset.loc[dataset['arg1'] == proposition]['originalArg1'].iloc[0]
+        try:
+            originalSentence = dataset.loc[dataset['arg1'] == proposition]['originalArg1'].iloc[0]
+        except:
+            print(proposition)
         keyWordFeatureList.append(including_keywords_features(proposition, originalSentence, premise_list, claim_list))
 
     keywordFeatureFrame = pd.DataFrame(data=keyWordFeatureList, columns=["claimIndicatorArg1", "premiseIndicatorArg1"])
