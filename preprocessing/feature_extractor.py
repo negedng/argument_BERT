@@ -110,10 +110,9 @@ def add_keyword_feature(dataset):
     premise_list = read_key_words(PREMISE_FILE)
     claim_list = read_key_words(CLAIM_FILE)
 
-    keywords = dataset[['arg1','originalArg1']].apply(lambda row: including_keywords_features(row['arg1'], row['originalArg1'], premise_list, claim_list), axis=1)
-    keywords = pd.DataFrame(keywords.tolist(), columns=["claimIndicatorArg1", "premiseIndicatorArg1"])
-    keywords["arg1"] = dataset.loc[:,'arg1']
-    print(keywords[:10])
+    keywords = dataset[['arg1','originalArg1']].drop_duplicates().apply(lambda row: including_keywords_features(row['arg1'], row['originalArg1'], premise_list, claim_list), axis=1)
+    keywords = pd.DataFrame(keywords.tolist(), columns=["arg1", "claimIndicatorArg1", "premiseIndicatorArg1"])
+    
     
     dataset = pd.merge(dataset, keywords, on='arg1')
     keywords = keywords.rename(columns = {'arg1':'arg2', 'claimIndicatorArg1':'claimIndicatorArg2', 'premiseIndicatorArg1': 'premiseIndicatorArg2'})
@@ -155,7 +154,7 @@ def including_keywords_features(proposition, original,
         claim_indicator = check_claim_indicators(extendedSentence, claim_list)
         premise_indicator = check_premise_indicators(extendedSentence, premise_list)
 
-    return [claim_indicator, premise_indicator]
+    return [proposition, claim_indicator, premise_indicator]
 
     
 def check_premise_indicators(sentence, premise_list):
