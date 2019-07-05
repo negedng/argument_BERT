@@ -85,3 +85,12 @@ def balance_dataset(dataset, balance_ratio):
               str(relationRatio) + "-----")
 
         return dataset
+
+
+def lower_texts(dataset,
+                columns=['arg1', 'arg2', 'originalArg1', 'originalArg2']):
+    """Lower texts in arg1, arg2, originalArg1, originalArg2"""
+    for column in columns:
+        dataset[column] = dataset[column].apply(lambda row: row.lower())
+    return dataset
+    
