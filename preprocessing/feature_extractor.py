@@ -104,7 +104,7 @@ def get_one_hot_pos(parsedProposition, label_binarizer):
     return posVector
 
 
-def add_keyword_feature(dataset, propositionSet):
+def add_keyword_feature(dataset):
     """Add premise and claim flag for every proposition"""
 
     premise_list = read_key_words(PREMISE_FILE)
@@ -113,6 +113,7 @@ def add_keyword_feature(dataset, propositionSet):
     keywords = dataset[['arg1','originalArg1']].apply(lambda row: including_keywords_features(row['arg1'], row['originalArg1'], premise_list, claim_list), axis=1)
     keywords = pd.DataFrame(keywords.tolist(), columns=["claimIndicatorArg1", "premiseIndicatorArg1"])
     keywords["arg1"] = dataset.loc[:,'arg1']
+    print(keywords[:10])
     
     dataset = pd.merge(dataset, keywords, on='arg1')
     keywords = keywords.rename(columns = {'arg1':'arg2', 'claimIndicatorArg1':'claimIndicatorArg2', 'premiseIndicatorArg1': 'premiseIndicatorArg2'})
