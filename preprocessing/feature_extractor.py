@@ -278,7 +278,7 @@ def add_bert_embeddings(dataset, propositionSet,
         dataset = pd.merge(dataset, emb_frame, on="arg2")
         
     if original_sentence_feature:
-        original_sentences = dataset['originalArg1'].drop_duplicates()
+        original_sentences = list(set(dataset['orgininalArg1']))
         embeddingSet = bert_embedding(original_sentences, filter_spec_tokens=False)
         
         embs3d = np.array(embeddingSet)[:,1]
