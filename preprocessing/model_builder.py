@@ -194,7 +194,7 @@ def build_FFNN(shared_feature_dim, output_dim=2,
         else:
             model = Model(inputs=[sentence1, sentence2], outputs=[softmax])
 
-    if output_dim = 2:
+    if output_dim == 2:
         loss="binary_crossentropy"
     else:
         loss="categorical_crossentropy"
