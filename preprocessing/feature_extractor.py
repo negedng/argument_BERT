@@ -240,7 +240,9 @@ def add_same_sentence_feature(dataset):
     return dataset
 
 
-def add_bert_embeddings(dataset, propositionSet, sentence_feature=True, token_feature=True, bert_embedding=None, pad_no=35):
+def add_bert_embeddings(dataset, propositionSet,
+                        sentence_feature=True, token_feature=True, original_sentence_feature=True,
+                        bert_embedding=None, pad_no=35):
     """Add bert embeddings to the dataset. Use matching tokenizer!"""
     if(bert_embedding is None):
         print("Warning! Match tokenizer to have the same propositions!")
@@ -274,5 +276,22 @@ def add_bert_embeddings(dataset, propositionSet, sentence_feature=True, token_fe
         dataset = pd.merge(dataset, emb_frame, on="arg1")
         emb_frame = emb_frame.rename(columns={"arg1":"arg2","bertVector1":"bertVector2"})
         dataset = pd.merge(dataset, emb_frame, on="arg2")
+        
+    if original_sentence_feature:
+        original_sentences = dataset['originalArg1']
+        embeddingSet = bert_embedding(original_sentences, filter_spec_tokens=False)
+        
+        embs3d = np.array(embeddingSet)[:,1]
+        embs1 = np.array([x[0] for x in embs3d])
+        embs2d = np.empty((embs1.shape[0],), dtype=np.object)
+        for i in range(embs1.shape[0]): embs2d[i] = embs1[i,:]
+        emb_frame = pd.DataFrame(embs2d, columns=["bertOriginalArg1"])
+        
+        emb_frame["originalArg1"] = pd.Series(original_sentences, index=emb_frame.index)
+  
+        dataset = pd.merge(dataset, emb_frame, on="originalArg1")
+        emb_frame = emb_frame.rename(columns={"originalArg1":"originalArg2","bertOriginalArg1":"bertOriginalArg2"})
+        dataset = pd.merge(dataset, emb_frame, on="originalArg2")
+        
 
     return dataset
