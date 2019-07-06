@@ -209,13 +209,21 @@ def add_token_feature(dataset, propositionSet, parsedPropositions):
     return dataset
 
     
-def add_shared_noun_feature(dataset, propositionSet, parsedPropositions):
+def add_shared_noun_feature(dataset, propositionSet, parsedPropositions, key='arg'):
     """Add binary has shared noun and number of shared nouns to the dataset"""
+    key1 = key + '1'
+    key2 = key + '2'
+    if key == 'arg':
+        ret_keys = 'sharedNouns'
+        ret_keyn = 'numberOfSharedNouns'
+    else:
+        ret_keys = 'originalSharedNouns'
+        ret_keyn = 'originalNumberOfSharedNouns'
         
-    temp = dataset[['arg1','arg2']].apply(lambda row: find_shared_nouns(parsedPropositions[propositionSet.index(row['arg1'])], parsedPropositions[propositionSet.index(row['arg2'])]), axis=1)
+    temp = dataset[[key1,key2]].apply(lambda row: find_shared_nouns(parsedPropositions[propositionSet.index(row[key1])], parsedPropositions[propositionSet.index(row[key2])]), axis=1)
     temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
-    dataset["sharedNouns"] = temp.loc[:,'sharedNouns']
-    dataset["numberOfSharedNouns"] = temp.loc[:,'numberOfSharedNouns']
+    dataset[ret_keys] = temp.loc[:,'sharedNouns']
+    dataset[ret_keyn] = temp.loc[:,'numberOfSharedNouns']
         
     return dataset
 
