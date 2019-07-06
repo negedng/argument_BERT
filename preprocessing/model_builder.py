@@ -157,7 +157,7 @@ def build_FFNN(shared_feature_dim, output_dim=2,
     # Concat argument and sentence layers
     if has_original_sentences:
         concat1 = concatenate([dense1, denseOriginal1], axis=-1)
-        concat2 = concatenate([dense2, denseOriginal2], axis=-2)
+        concat2 = concatenate([dense2, denseOriginal2], axis=-1)
         arg_sent_units = sent_arg_start_units
         dense1 = Dense(arg_sent_units, activation="sigmoid")(concat1)
         dense2 = Dense(arg_sent_units, activation="sigmoid")(concat2)
