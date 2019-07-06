@@ -52,7 +52,7 @@ def select_argue_features(dataset,
     return sentence1, sentence2, sharedFeatures
 
 
-def select_FFNN_features(dataset,
+def select_FFNN_features(dataset, shared_features=True,
                          shared_feature_list=['claimIndicatorArg1',
                                               'premiseIndicatorArg1',
                                               'claimIndicatorArg2',
@@ -68,10 +68,14 @@ def select_FFNN_features(dataset,
     sent2 = np.stack(dataset["bertArg2"].to_numpy().ravel())
     sharedFeatures = dataset[shared_feature_list]
     if not original_bert:
+        if not shared_features:
+            return [sent1, sent2]
         return [sent1, sent2, sharedFeatures]
     
     orig1 = np.stack(dataset["bertOriginalArg1"].to_numpy().ravel())
     orig2 = np.stack(dataset["bertOriginalArg2"].to_numpy().ravel())
+    if not shared_features:
+        return [sent1, sent2, orig1, orig2]
     return [sent1, sent2, orig1, orig2, sharedFeatures]
 
 
