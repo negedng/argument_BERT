@@ -14,6 +14,8 @@ from sklearn.preprocessing import LabelBinarizer
 import os
 import inspect
 import re
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
+
 import bert_embedding
 
 current_dir = os.path.dirname(inspect.stack()[0][1])
@@ -209,24 +211,34 @@ def add_token_feature(dataset, propositionSet, parsedPropositions):
     return dataset
 
     
-def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0):
+def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False):
     """Add binary has shared noun and number of shared nouns to the dataset"""
+    
+    if stemming:
+        ps = nltk.stem.PorterStemmer()
+        stemmed = "Stem"
+    else:
+        ps = None
+        stemmed = ""
     key1 = key + '1'
     key2 = key + '2'
     word_key = word_type.title()
     if key == 'arg':
-        ret_keys = 'shared' + word_key
-        ret_keyn = 'numberOfShared' + word_key
+        ret_keys = 'shared' +stemmed+ word_key
+        ret_keyn = 'numberOfShared' +stemmed+ word_key
     else:
-        ret_keys = 'originalShared' + word_key
-        ret_keyn = 'originalNumberOfShared' + word_key
+        ret_keys = 'originalShared' +stemmed+ word_key
+        ret_keyn = 'originalNumberOfShared' +stemmed+ word_key
     
     if word_type == "nouns":
         pos_tag_list = ['NN']
     else:
-        pos_tag_list = []
+        if word_type == "verbs":
+            pos_tag_list = ['VB']
+        else:
+            pos_tag_list = []
         
-    temp = dataset[[key1,key2]].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key1])], parsedPropositions[propositionSet.index(row[key2])], min_length=min_word_length, pos_tag_list=pos_tag_list), axis=1)
+    temp = dataset[[key1,key2]].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key1])], parsedPropositions[propositionSet.index(row[key2])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)
     temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
     dataset[ret_keys] = temp.loc[:,'sharedNouns']
     dataset[ret_keyn] = temp.loc[:,'numberOfSharedNouns']
@@ -234,11 +246,16 @@ def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='a
     return dataset
 
 
-def find_shared_words(proposition, partner, min_length=0, pos_tag_list=['NN']):
+def find_shared_words(proposition, partner, min_length=0, pos_tag_list=['NN'], stemming=False, ps=None):
 
     has_tag_list = len(pos_tag_list)>0
-    arg1Nouns = [word for (word, pos) in proposition if (((not has_tag_list) or (pos in pos_tag_list)) and (len(word)>=min_length))]
-    arg2Nouns = [word for (word, pos) in partner if (((not has_tag_list) or (pos in pos_tag_list)) and (len(word)>=min_length))]
+    if stemming==False:
+        arg1Nouns = [word for (word, pos) in proposition if (((not has_tag_list) or (pos in pos_tag_list)) and (len(word)>=min_length))]
+        arg2Nouns = [word for (word, pos) in partner if (((not has_tag_list) or (pos in pos_tag_list)) and (len(word)>=min_length))]
+    else:
+        arg1Nouns = [ps.stem(word) for (word, pos) in proposition if  (len(word)>=min_length)]
+        arg2Nouns = [ps.stem(word) for (word, pos) in partner if  (len(word)>=min_length)]
+
     intersection = set(arg1Nouns).intersection(arg2Nouns)
     shared = 0
     if len(intersection)>0:
@@ -310,3 +327,22 @@ def add_bert_embeddings(dataset, propositionSet,
         
 
     return dataset
+
+    
+def sentiment_scores(sentence, sid_obj=None):
+    """Sentiment analysis of the sentence"""
+    if(sid_obj==None):
+        sid_obj = SentimentIntensityAnalyzer() 
+    sentiment_dict = sid_obj.polarity_scores(sentence)
+    return [sentence, sentiment_dict['neg'], sentiment_dict['neu'], sentiment_dict['pos'], sentiment_dict['compound']]
+
+def add_sentiment_scores(dataset, key="arg"):
+    """Sentiment analysis scores: neg, neu, pos, compound"""
+    sid_obj = SentimentIntensityAnalyzer() 
+    key_t = key.title()
+    sentiments = dataset[(key+'1')].drop_duplicates().apply(lambda row: sentiment_scores(row, sid_obj))
+    sentiments = pd.DataFrame(sentiments.tolist(), columns=[(key+'1'), ("sentNeg"+key_t+"1"), ("sentNeu"+key_t+"1"), ("sentPos"+key_t+"1"), ("sentCompound"+key_t+"1")])
+    dataset = pd.merge(dataset, sentiments, on=(key+"1"))
+  
+    sentiments = sentiments.rename(columns={(key+'1'):(key+'2'), ("sentNeg"+key_t+"1"):("sentNeg"+key_t+"2"),("sentNeu"+key_t+"1"):("sentNeu"+key_t+"2"),("sentPos"+key_t+"1"):("sentPos"+key_t+"2"),("sentCompound"+key_t+"1"):("sentCompound"+key_t+"2")})
+    return pd.merge(dataset, sentiments, on=(key+'2'))
