@@ -209,18 +209,24 @@ def add_token_feature(dataset, propositionSet, parsedPropositions):
     return dataset
 
     
-def add_shared_noun_feature(dataset, propositionSet, parsedPropositions, key='arg'):
+def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0):
     """Add binary has shared noun and number of shared nouns to the dataset"""
     key1 = key + '1'
     key2 = key + '2'
+    word_key = word_type.title()
     if key == 'arg':
-        ret_keys = 'sharedNouns'
-        ret_keyn = 'numberOfSharedNouns'
+        ret_keys = 'shared' + word_key
+        ret_keyn = 'numberOfShared' + word_key
     else:
-        ret_keys = 'originalSharedNouns'
-        ret_keyn = 'originalNumberOfSharedNouns'
+        ret_keys = 'originalShared' + word_key
+        ret_keyn = 'originalNumberOfShared' + word_key
+    
+    if word_type == "nouns":
+        pos_tag_list = ['NN']
+    else:
+        pos_tag_list = []
         
-    temp = dataset[[key1,key2]].apply(lambda row: find_shared_nouns(parsedPropositions[propositionSet.index(row[key1])], parsedPropositions[propositionSet.index(row[key2])]), axis=1)
+    temp = dataset[[key1,key2]].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key1])], parsedPropositions[propositionSet.index(row[key2])], min_length=min_word_length, pos_tag_list=pos_tag_list), axis=1)
     temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
     dataset[ret_keys] = temp.loc[:,'sharedNouns']
     dataset[ret_keyn] = temp.loc[:,'numberOfSharedNouns']
@@ -228,10 +234,11 @@ def add_shared_noun_feature(dataset, propositionSet, parsedPropositions, key='ar
     return dataset
 
 
-def find_shared_nouns(proposition, partner):
+def find_shared_words(proposition, partner, min_length=0, pos_tag_list=['NN']):
 
-    arg1Nouns = [word for (word, pos) in proposition if pos == 'NN']
-    arg2Nouns = [word for (word, pos) in partner if pos == 'NN']
+    has_tag_list = len(post_tag_list)>0
+    arg1Nouns = [word for (word, pos) in proposition if (((not has_tag_list) or (pos is in pos_tag_list)) and (len(word)>=min_length)]
+    arg2Nouns = [word for (word, pos) in partner if (((not has_tag_list) or (pos is in pos_tag_list)) and (len(word)>=min_length)]
     intersection = set(arg1Nouns).intersection(arg2Nouns)
     shared = 0
     if len(intersection)>0:
