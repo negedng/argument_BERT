@@ -126,7 +126,7 @@ def build_FFNN(shared_feature_dim, output_dim=2,
                layer_decrease_rate=0.4, dropout_rate=0.2,
                has_shared_features=True, has_original_sentences=False,
                no_sent_arg_layers=2, sent_arg_start_units=300,
-               optimizer="adam"):
+               optimizer="adam", activation='sigmoid'):
     """Model using sentence level embeddings of the 2 arguments 
        and shared features"""
        
@@ -141,36 +141,36 @@ def build_FFNN(shared_feature_dim, output_dim=2,
     
     # Dense layers of the inputs
     separate_units = separate_start_units
-    dense1 = Dense(separate_units, activation='sigmoid')(sentence1)
-    dense2 = Dense(separate_units, activation='sigmoid')(sentence2)
+    dense1 = Dense(separate_units, activation=activation)(sentence1)
+    dense2 = Dense(separate_units, activation=activation)(sentence2)
     if has_original_sentences:
-        denseOriginal1 = Dense(separate_units, activation='sigmoid')(original1)
-        denseOriginal2 = Dense(separate_units, activation='sigmoid')(original2)
+        denseOriginal1 = Dense(separate_units, activation=activation)(original1)
+        denseOriginal2 = Dense(separate_units, activation=activation)(original2)
     for i in range(1,no_separate_layers):
         separate_units = int(separate_units*layer_decrease_rate)
         dense1 = Dropout(rate=dropout_rate)(dense1)
         dense2 = Dropout(rate=dropout_rate)(dense2)
-        dense1 = Dense(separate_units, activation='sigmoid')(dense1)
-        dense2 = Dense(separate_units, activation='sigmoid')(dense2)
+        dense1 = Dense(separate_units, activation=activation)(dense1)
+        dense2 = Dense(separate_units, activation=activation)(dense2)
         if has_original_sentences:
             denseOriginal1 = Dropout(rate=dropout_rate)(denseOriginal1)
             denseOriginal2 = Dropout(rate=dropout_rate)(denseOriginal2)
-            denseOriginal1 = Dense(separate_units, activation='sigmoid')(denseOriginal1)
-            denseOriginal2 = Dense(separate_units, activation='sigmoid')(denseOriginal2)
+            denseOriginal1 = Dense(separate_units, activation=activation)(denseOriginal1)
+            denseOriginal2 = Dense(separate_units, activation=activation)(denseOriginal2)
     
     # Concat argument and sentence layers
     if has_original_sentences:
         concat1 = concatenate([dense1, denseOriginal1], axis=-1)
         concat2 = concatenate([dense2, denseOriginal2], axis=-1)
         arg_sent_units = sent_arg_start_units
-        dense1 = Dense(arg_sent_units, activation="sigmoid")(concat1)
-        dense2 = Dense(arg_sent_units, activation="sigmoid")(concat2)
+        dense1 = Dense(arg_sent_units, activation=activation)(concat1)
+        dense2 = Dense(arg_sent_units, activation=activation)(concat2)
         for i in range(1, no_sent_arg_layers):
             arg_sent_units = int(arg_sent_units*layer_decrease_rate)
             dense1 = Dropout(rate=dropout_rate)(dense1)
             dense2 = Dropout(rate=dropout_rate)(dense2)
-            dense1 = Dense(arg_sent_units, activation="sigmoid")(dense1)
-            dense2 = Dense(arg_sent_units, activation="sigmoid")(dense2)
+            dense1 = Dense(arg_sent_units, activation=activation)(dense1)
+            dense2 = Dense(arg_sent_units, activation=activation)(dense2)
     
     # Concat with shared features and each other
     if has_shared_features:
@@ -178,11 +178,11 @@ def build_FFNN(shared_feature_dim, output_dim=2,
     else:
         concatenateLayer = concatenate([dense1, dense2], axis=-1)
     concat_units = concat_start_units
-    dense = Dense(concat_units, activation='sigmoid')(concatenateLayer)
+    dense = Dense(concat_units, activation=activation)(concatenateLayer)
     for i in range(1,no_concat_layers):
         concat_units = int(concat_units*layer_decrease_rate)
         dense = Dropout(rate=dropout_rate)(dense)
-        dense = Dense(concat_units, activation='sigmoid')(dense)
+        dense = Dense(concat_units, activation=activation)(dense)
         
     # Softmax output
     softmax = Dense(2, activation='softmax')(dense)
