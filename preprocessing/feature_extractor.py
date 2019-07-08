@@ -21,7 +21,7 @@ WORD2WEC_EMBEDDING_FILE = '/root/input/GoogleNews-vectors-negative300.bin.gz'
 PREMISE_FILE = current_dir + "/premise_indicator.txt"
 CLAIM_FILE = current_dir + "/claim_indicator.txt"
 
-def get_propositions(dataset, tokenizer=nltk.tokenize.word_tokenize):
+def get_propositions(dataset,column='arg1', tokenizer=nltk.tokenize.word_tokenize):
     """Parse propositions
     dataset: the original dataframe
     tokenizer: nltk.tokenize.word_tokenize, bert-embedding.tokenizer, etc.
@@ -30,7 +30,7 @@ def get_propositions(dataset, tokenizer=nltk.tokenize.word_tokenize):
         parsedPropositions: parsed prop. in the arg1
     """
     
-    propositionSet = list(set(dataset['arg1']))
+    propositionSet = list(set(dataset[column]))
     parsedPropositions = list()
 
     for proposition in propositionSet:
