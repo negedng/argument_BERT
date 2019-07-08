@@ -237,8 +237,8 @@ def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='a
 def find_shared_words(proposition, partner, min_length=0, pos_tag_list=['NN']):
 
     has_tag_list = len(post_tag_list)>0
-    arg1Nouns = [word for (word, pos) in proposition if (((not has_tag_list) or (pos is in pos_tag_list)) and (len(word)>=min_length)]
-    arg2Nouns = [word for (word, pos) in partner if (((not has_tag_list) or (pos is in pos_tag_list)) and (len(word)>=min_length)]
+    arg1Nouns = [word for (word, pos) in proposition if (((not has_tag_list) or (pos in pos_tag_list)) and (len(word)>=min_length)]
+    arg2Nouns = [word for (word, pos) in partner if (((not has_tag_list) or (pos in pos_tag_list)) and (len(word)>=min_length)]
     intersection = set(arg1Nouns).intersection(arg2Nouns)
     shared = 0
     if len(intersection)>0:
