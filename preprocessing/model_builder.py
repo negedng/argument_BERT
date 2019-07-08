@@ -53,17 +53,14 @@ def select_argue_features(dataset,
 
 
 def select_FFNN_features(dataset, shared_features=True,
-                         shared_feature_list=['claimIndicatorArg1',
-                                              'premiseIndicatorArg1',
-                                              'claimIndicatorArg2',
-                                              'premiseIndicatorArg2',
-                                              'sameSentence',
-                                              'sharedNouns',
-                                              'numberOfSharedNouns',
-                                              'tokensArg1',
-                                              'tokensArg2'],
+                         shared_feature_list=None,
                          original_bert=False):
     """Only global features"""
+    
+    if shared_feature_list == None:
+        shared_feature_list = dataset.columns
+        shared_feature_list.drop(['arg1', 'arg2', 'originalArg1', 'originalArg2', 'argumentationID', 'label', 'originalLabel', 'bertArg1', 'bertArg2', 'bertOriginalArg1', 'bertOriginalArg2', 'vector1', 'vector2', 'pos1', 'pos2', 'bertVector1', 'bertVector2'], errors='ignore')
+    
     sent1 = np.stack(dataset["bertArg1"].to_numpy().ravel())
     sent2 = np.stack(dataset["bertArg2"].to_numpy().ravel())
     sharedFeatures = dataset[shared_feature_list]
