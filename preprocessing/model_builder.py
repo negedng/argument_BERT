@@ -59,7 +59,7 @@ def select_FFNN_features(dataset, shared_features=True,
     
     if shared_feature_list == None:
         shared_feature_list = dataset.columns
-        shared_feature_list = shared_feature_list.drop(['arg1', 'arg2', 'originalArg1', 'originalArg2', 'argumentationID', 'label', 'originalLabel', 'bertArg1', 'bertArg2', 'bertOriginalArg1', 'bertOriginalArg2', 'vector1', 'vector2', 'pos1', 'pos2', 'bertVector1', 'bertVector2', 'results', 'predicted_label', 'expected_label'], errors='ignore')
+        shared_feature_list = shared_feature_list.drop(['arg1', 'arg2', 'originalArg1', 'originalArg2', 'fullText1', 'argumentationID', 'label', 'originalLabel', 'bertArg1', 'bertArg2', 'bertOriginalArg1', 'bertOriginalArg2', 'vector1', 'vector2', 'pos1', 'pos2', 'bertVector1', 'bertVector2', 'results', 'predicted_label', 'expected_label'], errors='ignore')
     
     sent1 = np.stack(dataset["bertArg1"].to_numpy().ravel())
     sent2 = np.stack(dataset["bertArg2"].to_numpy().ravel())
