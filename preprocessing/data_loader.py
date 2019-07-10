@@ -96,7 +96,6 @@ def load_single_file(fileID, file_path):
                        propositions[j]["TextPosition"]["@start"] != "-1"):
                         original_text = xmlData["Annotation"]["OriginalText"]
                         sent_tokenize_list = sent_tokenize(original_text)
-                        file_data.append({'fullText1': original_text})
 
                         if propositions[i]["TextPosition"]["@start"] != "-1":
                             for sentence in sent_tokenize_list:
@@ -114,7 +113,8 @@ def load_single_file(fileID, file_path):
                                   'originalArg1': originalSentenceArg1,
                                   'arg2': propositions[j]["text"],
                                   'originalArg2': originalSentenceArg2,
-                                  'label': relationMatrix[i][j]})
+                                  'label': relationMatrix[i][j],
+                                  'fullText1': original_text})
     return file_data
 
 
