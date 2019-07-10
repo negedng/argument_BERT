@@ -214,7 +214,9 @@ def add_token_feature(dataset, propositionSet, parsedPropositions):
 def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False, fullText=False, fullPropositionSet=None, fullParsedPropositions=None):
     """Add binary has shared noun and number of shared nouns to the dataset"""
     
-    full="Full" if fullText else full=""
+    full=""
+    if fullText:
+        full="Full"
     
     if stemming:
         ps = nltk.stem.PorterStemmer()
