@@ -211,7 +211,7 @@ def add_token_feature(dataset, propositionSet, parsedPropositions):
     return dataset
 
     
-def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False):
+def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False, fullText=False, fullPropositionSet=None, fullParsedPropositions=None):
     """Add binary has shared noun and number of shared nouns to the dataset"""
     
     if stemming:
@@ -237,8 +237,10 @@ def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='a
             pos_tag_list = ['VB']
         else:
             pos_tag_list = []
-        
-    temp = dataset[[key1,key2]].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key1])], parsedPropositions[propositionSet.index(row[key2])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)
+    if not fullText:   
+        temp = dataset[[key1,key2]].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key1])], parsedPropositions[propositionSet.index(row[key2])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)
+    else:
+        temp = dataset[[key1,'fullText1']].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key1])], fullParsedPropositions[fullPropositionSet.index(row['fullText1'])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)        
     temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
     dataset[ret_keys] = temp.loc[:,'sharedNouns']
     dataset[ret_keyn] = temp.loc[:,'numberOfSharedNouns']
@@ -336,13 +338,15 @@ def sentiment_scores(sentence, sid_obj=None):
     sentiment_dict = sid_obj.polarity_scores(sentence)
     return [sentence, sentiment_dict['neg'], sentiment_dict['neu'], sentiment_dict['pos'], sentiment_dict['compound']]
 
-def add_sentiment_scores(dataset, key="arg"):
+def add_sentiment_scores(dataset, key="arg", has_2=True):
     """Sentiment analysis scores: neg, neu, pos, compound"""
     sid_obj = SentimentIntensityAnalyzer() 
     key_t = key.title()
     sentiments = dataset[(key+'1')].drop_duplicates().apply(lambda row: sentiment_scores(row, sid_obj))
     sentiments = pd.DataFrame(sentiments.tolist(), columns=[(key+'1'), ("sentNeg"+key_t+"1"), ("sentNeu"+key_t+"1"), ("sentPos"+key_t+"1"), ("sentCompound"+key_t+"1")])
     dataset = pd.merge(dataset, sentiments, on=(key+"1"))
-  
+    if not has_2:
+        return dataset
+        
     sentiments = sentiments.rename(columns={(key+'1'):(key+'2'), ("sentNeg"+key_t+"1"):("sentNeg"+key_t+"2"),("sentNeu"+key_t+"1"):("sentNeu"+key_t+"2"),("sentPos"+key_t+"1"):("sentPos"+key_t+"2"),("sentCompound"+key_t+"1"):("sentCompound"+key_t+"2")})
     return pd.merge(dataset, sentiments, on=(key+'2'))
