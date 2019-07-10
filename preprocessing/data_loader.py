@@ -96,6 +96,7 @@ def load_single_file(fileID, file_path):
                        propositions[j]["TextPosition"]["@start"] != "-1"):
                         original_text = xmlData["Annotation"]["OriginalText"]
                         sent_tokenize_list = sent_tokenize(original_text)
+                        file_data.append({'fullText': original_text})
 
                         if propositions[i]["TextPosition"]["@start"] != "-1":
                             for sentence in sent_tokenize_list:
