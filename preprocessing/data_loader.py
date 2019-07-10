@@ -95,6 +95,7 @@ def load_single_file(fileID, file_path):
                     if(propositions[i]["TextPosition"]["@start"] != "-1" or
                        propositions[j]["TextPosition"]["@start"] != "-1"):
                         original_text = xmlData["Annotation"]["OriginalText"]
+                        original_text2 = original_text.replace('\n',' ')
                         sent_tokenize_list = sent_tokenize(original_text)
 
                         if propositions[i]["TextPosition"]["@start"] != "-1":
