@@ -214,6 +214,8 @@ def add_token_feature(dataset, propositionSet, parsedPropositions):
 def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False, fullText=False, fullPropositionSet=None, fullParsedPropositions=None):
     """Add binary has shared noun and number of shared nouns to the dataset"""
     
+    full="Full" if fullText else full=""
+    
     if stemming:
         ps = nltk.stem.PorterStemmer()
         stemmed = "Stem"
@@ -224,11 +226,11 @@ def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='a
     key2 = key + '2'
     word_key = word_type.title()
     if key == 'arg':
-        ret_keys = 'shared' +stemmed+ word_key
-        ret_keyn = 'numberOfShared' +stemmed+ word_key
+        ret_keys = 'shared' +stemmed+ word_key + full
+        ret_keyn = 'numberOfShared' +stemmed+ word_key + full
     else:
-        ret_keys = 'originalShared' +stemmed+ word_key
-        ret_keyn = 'originalNumberOfShared' +stemmed+ word_key
+        ret_keys = 'originalShared' +stemmed+ word_key + full
+        ret_keyn = 'originalNumberOfShared' +stemmed+ word_key + full
     
     if word_type == "nouns":
         pos_tag_list = ['NN']
@@ -239,11 +241,19 @@ def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='a
             pos_tag_list = []
     if not fullText:   
         temp = dataset[[key1,key2]].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key1])], parsedPropositions[propositionSet.index(row[key2])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)
+        temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
+        dataset[ret_keys] = temp.loc[:,'sharedNouns']
+        dataset[ret_keyn] = temp.loc[:,'numberOfSharedNouns']
     else:
         temp = dataset[[key1,'fullText1']].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key1])], fullParsedPropositions[fullPropositionSet.index(row['fullText1'])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)        
-    temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
-    dataset[ret_keys] = temp.loc[:,'sharedNouns']
-    dataset[ret_keyn] = temp.loc[:,'numberOfSharedNouns']
+        temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
+        dataset[(ret_keys+'1')] = temp.loc[:,'sharedNouns']
+        dataset[(ret_keyn+'1')] = temp.loc[:,'numberOfSharedNouns']    
+
+        temp = dataset[[key2,'fullText1']].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key2])], fullParsedPropositions[fullPropositionSet.index(row['fullText1'])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)        
+        temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
+        dataset[(ret_keys+'2')] = temp.loc[:,'sharedNouns']
+        dataset[(ret_keyn+'2')] = temp.loc[:,'numberOfSharedNouns']         
         
     return dataset
 
