@@ -6,21 +6,21 @@ import pandas as pd
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 
-def load_from_directory(directory):
+def load_from_directory(directory, rst_files=False):
     """Load all files in the directory, creates relation matrix for them"""
     print("Loading data from directory")
     print("Detected files: "+str(len(os.listdir(directory))))
     data_list = list()
     for e, annotation_file in enumerate(os.listdir(directory)):
         annotation_file_path = os.path.join(directory, annotation_file)
-        file_data = load_single_file(e, annotation_file_path)
+        file_data = load_single_file(e, annotation_file_path, rst_files)
         data_list = data_list + file_data
     dataFrame = pd.DataFrame.from_dict(data_list, orient='columns')
     print("Loaded data length: " + str(len(dataFrame)))
     return dataFrame
 
 
-def load_single_file(fileID, file_path):
+def load_single_file(fileID, file_path, rst_files=False):
     """Load a single file, creates relation matrix
     Output:
         arg1, arg2 - the arguments
@@ -34,6 +34,10 @@ def load_single_file(fileID, file_path):
         data = myfile.read()
 
     xmlData = xmltodict.parse(data)
+    
+    if rst_files:
+        recovered_string, prop_edu_dict = load_merge(file_path)
+        edges = load_brackets(file_path)
 
     argumentationID = fileID
 
@@ -109,13 +113,45 @@ def load_single_file(fileID, file_path):
                             for sentence in sent_tokenize_list:
                                 if propositions[j]["text"] in sentence:
                                     originalSentenceArg2 = sentence
-                file_data.append({'argumentationID': argumentationID,
-                                  'arg1': propositions[i]["text"],
-                                  'originalArg1': originalSentenceArg1,
-                                  'arg2': propositions[j]["text"],
-                                  'originalArg2': originalSentenceArg2,
-                                  'label': relationMatrix[i][j],
-                                  'fullText1': original_text})
+
+                line_data = {'argumentationID': argumentationID,
+                             'arg1': propositions[i]["text"],
+                             'originalArg1': originalSentenceArg1,
+                             'arg2': propositions[j]["text"],
+                             'originalArg2': originalSentenceArg2,
+                             'label': relationMatrix[i][j],
+                             'fullText1': original_text}
+
+                if rst_files:
+                    arg1_range = get_edus(propositions[i]["text"],
+                                 recovered_string, prop_edu_dict)
+                    arg2_range = get_edus(propositions[j]["text"],
+                                 recovered_string, prop_edu_dict)
+                    arg1_rsts = get_rst_stats(arg1_range, edges)
+                    arg2_rsts = get_rst_stats(arg2_range, edges)
+                    cn1 = arg1_rsts['connected_nodes']
+                    cn2 = arg2_rsts['connected_nodes']
+                    conn = False
+                    conn_parent = any([z in cn1 for z in cn2])
+                    for c in cn1:
+                        if c in arg2_range:
+                            conn = True
+                    for c in cn2:
+                        if c in arg1_range:
+                            conn = True
+                    line_data['rstCon'] = conn
+                    line_data['rstConParent'] = conn_parent
+                    line_data['posEduArg1'] = arg1_range[0]
+                    line_data['posEduArg1'] = arg2_range[0]
+                    
+                posArg1 = propositions[i]["TextPosition"]["@start"]
+                posArg2 = propositions[j]["TextPosition"]["@start"]    
+                if posArg1 != -1:
+                    line_data['positionArg1'] = posArg1
+                if posArg2 != -1:
+                    line_data['positionArg2'] = posArg2
+
+                file_data.append(line_data)
     return file_data
 
 
@@ -127,3 +163,91 @@ def fit_tokenize_length_threshold(proposition):
         return True
     else:
         return False
+        
+
+# See: https://github.com/jiyfeng/DPLP for data parsing
+edge_type_list = ['span', 'purpose', 'textualorganization',
+                  'attribution', 'elaboration', 'list', 'circumstance',
+                  'antithesis', 'same_unit', 'manner', 'reason',
+                  'explanation', 'condition', 'means', 'topic',
+                  'example', 'temporal', 'concession', 'contrast',
+                  'result', 'question', 'comparison', 'consequence',
+                  'sequence', 'summary', 'restatement']
+
+
+def load_merge(file_path):
+    """Load from merge file"""
+    merge_file_path = file_path+'.merge'
+    props = []
+    with open(merge_file_path) as f:
+        for line in f:
+            if line=="\n":
+                continue
+            props.append(line.split("\t"))
+    recovered_string=""
+    prop_edu_dict = {}
+    for proposition in props:
+        ws = ""
+        if proposition[2] not in ["'",".",",","?","!", "'s"]:
+            ws = " "
+        prop_edu_dict[len(recovered_string)] = int(proposition[-1])
+        recovered_string += ws + proposition[2]
+    recovered_string = recovered_string.lstrip()
+    return recovered_string, prop_edu_dict
+    
+    
+def load_brackets(file_path):
+    """Load from brackets file"""
+    bracket_file_path = file_path+'.brackets'
+    edges = []
+    with open(bracket_file_path) as f:
+        for line in f:
+            line_p = line.strip().replace('(','').replace(')','')
+            line_p = line_p.replace("'",'').replace(",","").split(' ')
+            edges.append({'node_1':int(line_p[0]), 
+                          'node_2':int(line_p[1]),
+                          'node_type':line_p[2],
+                          'edge_type':line_p[3]})
+    return edges
+
+
+def get_edus(arg, edu_string, edu_dict):
+    """Get starting and ending EDU for argument"""
+    prefix = edu_string.find(arg)
+    length = len(arg)
+    for i in range(prefix, prefix+length):
+        if i in nums:
+            start = nums[i]
+            break
+    for i in range(prefix+length, prefix, -1):
+        if i in nums:
+            end = nums[i]+1
+            break
+    return range(start, end)
+
+
+def get_rst_stats(edus, edges):
+    """Get info from brackets of arg EDUs"""
+    satelite_no = 0
+    nucleus_no = 0
+    edge_types = [0] * len(edge_type_list)
+    connected_nodes = []
+    for edge in edges:
+        if (edge['node_1'] in edus) or (edge['node_2'] in edus):
+            if edge['node_type'] == 'Satellite':
+                satelite_no += 1
+            if edge['node_type'] == 'Nucleus':
+                nucleus_no += 1
+            
+            edge_types[edge_type_list.index(edge['edge_type'])] += 1
+            
+            if(edge['node_1'] not in edus):
+                if edge['node_1'] not in connected_nodes:
+                    connected_nodes.append(edge['node_1'])
+            if(edge['node_2'] not in edus):
+                if edge['node_2'] not in connected_nodes:
+                    connected_nodes.append(edge['node_2'])
+    return {'nucleus': nucleus_no,
+            'satelite': satelite_no,
+            'edge_types': edge_types,
+            'connected_nodes': connected_nodes}
