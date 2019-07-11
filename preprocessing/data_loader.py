@@ -101,6 +101,8 @@ def load_single_file(fileID, file_path, rst_files=False):
                         original_text = xmlData["Annotation"]["OriginalText"]
                         original_text2 = original_text.replace('\n',' ')
                         sent_tokenize_list = sent_tokenize(original_text)
+                        sens = len(sent_tokenize_list)
+                        print(sens)
 
                         if propositions[i]["TextPosition"]["@start"] != "-1":
                             for sentence in sent_tokenize_list:
