@@ -146,8 +146,8 @@ def load_single_file(fileID, file_path, rst_files=False):
                             conn = True
                     line_data['rstCon'] = 1 if conn else 0
                     line_data['rstConParent'] = 1 if conn_parent else 0 
-                    line_data['posEduArg1'] = arg1_range[0]
-                    line_data['posEduArg1'] = arg2_range[0]
+#                    line_data['posEduArg1'] = arg1_range[0]
+#                    line_data['posEduArg2'] = arg2_range[0]
                     
                 positArg1 = int(propositions[i]["TextPosition"]["@start"])
                 positArg2 = int(propositions[j]["TextPosition"]["@start"])    
