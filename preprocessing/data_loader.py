@@ -102,7 +102,6 @@ def load_single_file(fileID, file_path, rst_files=False):
                         original_text2 = original_text.replace('\n',' ')
                         sent_tokenize_list = sent_tokenize(original_text)
                         sens = len(sent_tokenize_list)
-                        print(sens)
 
                         if propositions[i]["TextPosition"]["@start"] != "-1":
                             for sentence in sent_tokenize_list:
@@ -154,7 +153,7 @@ def load_single_file(fileID, file_path, rst_files=False):
                     posit = abs((positArg1-positArg2)/len(original_text))
                     line_data['positionDiff'] = posit
                     senit = abs(sen1-sen2)
-                    line_data['sentenceDiff'] = senit
+                    line_data['sentenceDiff'] = senit/sens
 
                 file_data.append(line_data)
     return file_data
