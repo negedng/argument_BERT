@@ -144,8 +144,8 @@ def load_single_file(fileID, file_path, rst_files=False):
                     for c in cn2:
                         if c in arg1_range:
                             conn = True
-                    line_data['rstCon'] = conn
-                    line_data['rstConParent'] = conn_parent
+                    line_data['rstCon'] = 1 if conn else 0
+                    line_data['rstConParent'] = 1 if conn_parent else 0 
                     line_data['posEduArg1'] = arg1_range[0]
                     line_data['posEduArg1'] = arg2_range[0]
                     
