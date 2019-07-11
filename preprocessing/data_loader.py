@@ -148,7 +148,7 @@ def load_single_file(fileID, file_path, rst_files=False):
                     
                 positArg1 = propositions[i]["TextPosition"]["@start"]
                 positArg2 = propositions[j]["TextPosition"]["@start"]    
-                if posArg1 != -1 and posArg2 !=-1:
+                if positArg1 != -1 and positArg2 !=-1:
                     posit = abs((positArg1-positArg2)/len(original_text))
                     line_data['positionDiff'] = posit
                     senit = abs(sen1-sen2)
