@@ -146,8 +146,8 @@ def load_single_file(fileID, file_path, rst_files=False):
                     line_data['posEduArg1'] = arg1_range[0]
                     line_data['posEduArg1'] = arg2_range[0]
                     
-                positArg1 = propositions[i]["TextPosition"]["@start"]
-                positArg2 = propositions[j]["TextPosition"]["@start"]    
+                positArg1 = int(propositions[i]["TextPosition"]["@start"])
+                positArg2 = int(propositions[j]["TextPosition"]["@start"])    
                 if positArg1 != -1 and positArg2 !=-1:
                     posit = abs((positArg1-positArg2)/len(original_text))
                     line_data['positionDiff'] = posit
