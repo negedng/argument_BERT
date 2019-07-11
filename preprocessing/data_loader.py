@@ -222,12 +222,12 @@ def get_edus(arg, edu_string, edu_dict):
     prefix = edu_string.find(arg)
     length = len(arg)
     for i in range(prefix, prefix+length):
-        if i in nums:
-            start = nums[i]
+        if i in edu_dict:
+            start = edu_dict[i]
             break
     for i in range(prefix+length, prefix, -1):
-        if i in nums:
-            end = nums[i]+1
+        if i in edu_dict:
+            end = edu_dict[i]+1
             break
     return range(start, end)
 
