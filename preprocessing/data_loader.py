@@ -12,7 +12,7 @@ def load_from_directory(directory, rst_files=False):
     print("Detected files: "+str(len(os.listdir(directory))))
     data_list = list()
     for e, annotation_file in enumerate(os.listdir(directory)):
-        if annotation_file[-4:] is not ".xml":
+        if annotation_file[-4:] != ".xml":
             print(annotation_file[-4:])
             continue
         annotation_file_path = os.path.join(directory, annotation_file)
