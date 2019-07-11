@@ -183,7 +183,7 @@ edge_type_list = ['span', 'purpose', 'textualorganization',
 
 def load_merge(file_path):
     """Load from merge file"""
-    merge_file_path = file_path+'.merge'
+    merge_file_path = file_path.replace('ann.xml', 'txt.merge')
     props = []
     with open(merge_file_path) as f:
         for line in f:
@@ -204,7 +204,7 @@ def load_merge(file_path):
     
 def load_brackets(file_path):
     """Load from brackets file"""
-    bracket_file_path = file_path+'.brackets'
+    bracket_file_path = file_path.replace('ann.xml', 'txt.brackets')
     edges = []
     with open(bracket_file_path) as f:
         for line in f:
