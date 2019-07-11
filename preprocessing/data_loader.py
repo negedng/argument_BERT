@@ -107,12 +107,14 @@ def load_single_file(fileID, file_path, rst_files=False):
 
                                 if propositions[i]["text"] in sentence:
                                     originalSentenceArg1 = sentence
+                                    sen1 = sent_tokenize_list.index(sentence)
 
                         if propositions[j]["TextPosition"]["@start"] != "-1":
 
                             for sentence in sent_tokenize_list:
                                 if propositions[j]["text"] in sentence:
                                     originalSentenceArg2 = sentence
+                                    sen2 = sent_tokenize_list.index(sentence)
 
                 line_data = {'argumentationID': argumentationID,
                              'arg1': propositions[i]["text"],
@@ -144,12 +146,13 @@ def load_single_file(fileID, file_path, rst_files=False):
                     line_data['posEduArg1'] = arg1_range[0]
                     line_data['posEduArg1'] = arg2_range[0]
                     
-                posArg1 = propositions[i]["TextPosition"]["@start"]
-                posArg2 = propositions[j]["TextPosition"]["@start"]    
-                if posArg1 != -1:
-                    line_data['positionArg1'] = posArg1
-                if posArg2 != -1:
-                    line_data['positionArg2'] = posArg2
+                positArg1 = propositions[i]["TextPosition"]["@start"]
+                positArg2 = propositions[j]["TextPosition"]["@start"]    
+                if posArg1 != -1 and posArg2 !=-1:
+                    posit = abs((positArg1-positArg2)/len(original_text))
+                    line_data['positionDiff'] = posit
+                    senit = abs(sen1-sen2)
+                    line_data['sentenceDiff'] = senit
 
                 file_data.append(line_data)
     return file_data
