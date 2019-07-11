@@ -123,7 +123,7 @@ def load_single_file(fileID, file_path, rst_files=False):
                              'arg2': propositions[j]["text"],
                              'originalArg2': originalSentenceArg2,
                              'label': relationMatrix[i][j],
-                             'fullText1': original_text}
+                             'fullText1': original_text2}
 
                 if rst_files:
                     arg1_range = get_edus(propositions[i]["text"],
