@@ -16,14 +16,16 @@ def input_output_split(dataset):
     return x_data, y_data
 
 
-def change_labels(dataset, attack=False, bidirect=True,
+def change_labels(dataset, attack=False, bidirect="abs",
                   save_original=True):
     """Changes the labels depending on the classification task
         parameter:
         dataset: pandas dataframe containing the data
         attack: if true, the attack label will remain in the dataset,
             default is false
-        bidirect: allow bidirectional relation instead of one directional
+        bidirect: abs - absolute value,
+                  zero - negatives zero,
+                  skip - keeping original
         save_original: save the original label into an other row
     """
 
@@ -34,10 +36,14 @@ def change_labels(dataset, attack=False, bidirect=True,
         dataset.loc[dataset.label == 2, 'label'] = 1
         dataset.loc[dataset.label == -2, 'label'] = -1
 
-    if bidirect:
+    if bidirect=="abs":
         dataset.loc[dataset.label == -1, 'label'] = 1
+        dataset.loc[dataset.label == -2, 'label'] = 2
     else:
-        dataset.loc[dataset.label == -1, 'label'] = 0
+        if bidirect == "zero":
+            dataset.loc[dataset.label == -1, 'label'] = 0
+            dataset.loc[dataset.label == -2, 'label'] = 0
+        
 
     return dataset
 
