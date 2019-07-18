@@ -193,12 +193,14 @@ def load_for_ADU_types(fileID, file_path):
 
         if(currentProposition["ADU"]["@type"] != "conclusion"):
             aduType = 2
-        else if (currentProposition["ADU"]["@type"] != "claim"):
-            aduType = 1
-        else if (currentProposition["ADU"]["@type"] != "premise"):
-            aduType = 0
         else:
-            raise ValueError('Unexpected ADU type: ' + currentProposition["ADU"]["@type"])
+            if (currentProposition["ADU"]["@type"] != "claim"):
+                aduType = 1
+            else:
+                if (currentProposition["ADU"]["@type"] != "premise"):
+                    aduType = 0
+                else:
+                    raise ValueError('Unexpected ADU type: ' + currentProposition["ADU"]["@type"])
             
         arg1 = propositions[i]["text"]
         originalSentenceArg1 = arg1
