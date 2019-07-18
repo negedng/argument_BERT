@@ -172,6 +172,7 @@ def load_for_ADU_types(fileID, file_path):
         data = myfile.read()
 
     argumentationID = fileID
+    xmlData = xmltodict.parse(data)
 
     matrixLength = len(xmlData["Annotation"]["Proposition"])
     relationCount = 0
