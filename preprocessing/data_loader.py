@@ -201,7 +201,7 @@ def load_for_ADU_types(fileID, file_path):
         else:
             raise ValueError('Unexpected ADU type: ' + currentProposition["ADU"]["@type"])
             
-        arg1 = propositions[i]["text"]
+        arg1 = currentProposition["text"]
         originalSentenceArg1 = arg1
         positArg1 = 0
         
@@ -212,7 +212,7 @@ def load_for_ADU_types(fileID, file_path):
                     originalSentenceArg1 = sentence
                     sen1 = sent_tokenize_list.index(sentence)
                     
-            positArg1 = int(propositions[i]["TextPosition"]["@start"])
+            positArg1 = int(currentProposition["TextPosition"]["@start"])
         line_data = {'argumentationID': argumentationID,
                      'arg1': arg1,
                      'originalArg1': originalSentenceArg1,
