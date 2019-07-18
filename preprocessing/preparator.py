@@ -74,18 +74,21 @@ def balance_dataset(dataset, balance_ratio):
     labelMatrix = dataset['label'].to_numpy()
     numberOfRelations = np.count_nonzero(labelMatrix)
     relationRatio = numberOfRelations/len(dataset)
+    
 
     if relationRatio < RELATION_RATIO:
+        dataset['labelAbs'] = dataset['label'].abs()
 
         print("-----DATA IS UNBALANCED CURRENT SIZE: " + str(len(dataset)) +
               " CLASS RATIO: " + str(relationRatio) + " ... BALANCING DATA")
 
         shuffled = sk_shuffle(dataset)
 
-        orderedDataset = shuffled.sort_values(by=['label'], ascending=False)
+        orderedDataset = shuffled.sort_values(by=['labelAbs'], ascending=False)
         cutOff = int((1/RELATION_RATIO)*numberOfRelations)
 
         balanced = sk_shuffle(orderedDataset.head(cutOff))
+        balanced = balanced.drop(['labelAbs'])
 
         print("-----BALANCED DATASET WITH SIZE: "+str(len(balanced)))
         return balanced
