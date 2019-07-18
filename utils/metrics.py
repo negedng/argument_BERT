@@ -62,13 +62,31 @@ def draw_ROC_curve(y_true, y_pred, verbose=1):
     return fpr, tpr, thr
 
 
-def related_unrelated_report(model, features_test, y_test):
+def related_unrelated_report(model, features_test, y_test, target_names=None):
     prediction = model.predict(features_test)
 
     numberOfClasses = y_test.shape[1]
 
     position = np.argmax(prediction, axis=-1)
     y_pred = np.identity(numberOfClasses)[position]
-
-    target_names = ['nonrelated', 'related']
+    
+    if target_names==None:
+        if numberOfClasses == 2:
+            target_names = ['nonrelated', 'related']
+        else:
+            if numberOfClasses == 3:
+                target_names = ['nonrelated', 'support', 'attack']
+            else:
+                if numberOfClasses == 5:
+                    target_names = ['neqattack', 'neqsupport', 'nonrelated', 'support', 'attack']
+                else:
+                    target_names = None
+    
     print(classification_report(y_test, y_pred, target_names=target_names))
+    
+
+def adu_report(model, features_test, y_test):
+    related_unrelated_report(model, features_test, y_test,
+                             ['premise', 'claim', 'conclusion'])
+
+                             
