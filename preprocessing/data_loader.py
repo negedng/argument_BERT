@@ -53,11 +53,7 @@ def load_single_file(fileID, file_path, rst_files=False):
     relationMatrix = np.zeros(relationMatrix)
 
     propositions = xmlData["Annotation"]["Proposition"]
-    if(propositions[0]["TextPosition"]["@start"] != "-1"):
-        original_text = xmlData["Annotation"]["OriginalText"]
-        original_text2 = original_text.replace('\n',' ')
-        sent_tokenize_list = sent_tokenize(original_text)
-        sens = len(sent_tokenize_list)
+
 
     for prop_id in range(len(propositions)):
         currentProposition = propositions[prop_id]
@@ -108,6 +104,10 @@ def load_single_file(fileID, file_path, rst_files=False):
                 if "TextPosition" in propositions[i].keys():
                     if(propositions[i]["TextPosition"]["@start"] != "-1" or
                        propositions[j]["TextPosition"]["@start"] != "-1"):
+                        original_text = xmlData["Annotation"]["OriginalText"]
+                        original_text2 = original_text.replace('\n',' ')
+                        sent_tokenize_list = sent_tokenize(original_text)
+                        sens = len(sent_tokenize_list)
 
                         if propositions[i]["TextPosition"]["@start"] != "-1":
                             for sentence in sent_tokenize_list:
@@ -193,14 +193,12 @@ def load_for_ADU_types(fileID, file_path):
 
         if(currentProposition["ADU"]["@type"] != "conclusion"):
             aduType = 2
+        elif (currentProposition["ADU"]["@type"] != "claim"):
+            aduType = 1
+        elif (currentProposition["ADU"]["@type"] != "premise"):
+            aduType = 0
         else:
-            if (currentProposition["ADU"]["@type"] != "claim"):
-                aduType = 1
-            else:
-                if (currentProposition["ADU"]["@type"] != "premise"):
-                    aduType = 0
-                else:
-                    raise ValueError('Unexpected ADU type: ' + currentProposition["ADU"]["@type"])
+            raise ValueError('Unexpected ADU type: ' + currentProposition["ADU"]["@type"])
             
         arg1 = propositions[i]["text"]
         originalSentenceArg1 = arg1
