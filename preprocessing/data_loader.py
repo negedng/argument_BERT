@@ -25,7 +25,7 @@ def load_from_directory(directory, rst_files=False, ADU=False):
     return dataFrame
 
 
-def load_single_file(fileID, file_path):
+def load_single_file(fileID, file_path, rst_files):
     """Load a single file, creates relation matrix
     Output:
         arg1, arg2 - the arguments
