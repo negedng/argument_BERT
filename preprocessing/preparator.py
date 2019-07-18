@@ -88,7 +88,7 @@ def balance_dataset(dataset, balance_ratio):
         cutOff = int((1/RELATION_RATIO)*numberOfRelations)
 
         balanced = sk_shuffle(orderedDataset.head(cutOff))
-        balanced = balanced.drop('labelAbs')
+        
 
         print("-----BALANCED DATASET WITH SIZE: "+str(len(balanced)))
         return balanced
