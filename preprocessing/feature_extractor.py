@@ -42,7 +42,7 @@ def get_propositions(dataset,column='arg1', tokenizer=nltk.tokenize.word_tokeniz
     return propositionSet, parsedPropositions
     
 
-def add_word_vector_feature(dataset, propositionSet, parsedPropositions, word2VecModel=None, pad_no=35):
+def add_word_vector_feature(dataset, propositionSet, parsedPropositions, word2VecModel=None, pad_no=35, has_2=True):
     """Add word2vec feature to the dataset
     """
     if word2VecModel is None:
@@ -66,13 +66,14 @@ def add_word_vector_feature(dataset, propositionSet, parsedPropositions, word2Ve
 
     wordVectorFrame = pd.DataFrame({"arg1": propositionSet, "vector1": wordVectorFeature.tolist()})
     dataset = pd.merge(dataset, wordVectorFrame, on='arg1')
-    wordVectorFrame = wordVectorFrame.rename(columns={'arg1':'arg2', "vector1":"vector2"})
-    dataset = pd.merge(dataset, wordVectorFrame, on='arg2')
+    if has_2:
+        wordVectorFrame = wordVectorFrame.rename(columns={'arg1':'arg2', "vector1":"vector2"})
+        dataset = pd.merge(dataset, wordVectorFrame, on='arg2')
 
     return dataset
 
     
-def add_pos_feature(dataset, propositionSet, parsedPropositions, pad_no=35):
+def add_pos_feature(dataset, propositionSet, parsedPropositions, pad_no=35, has_2=True):
     """Add Part-of-Speech features for every proposition"""
 
     tagdict = nltk.data.load('help/tagsets/upenn_tagset.pickle')
@@ -91,8 +92,9 @@ def add_pos_feature(dataset, propositionSet, parsedPropositions, pad_no=35):
     
     posFrame = pd.DataFrame({"arg1":propositionSet, "pos1": propositionPOSPadded.tolist()})
     dataset = pd.merge(dataset, posFrame, on='arg1')
-    posFrame = posFrame.rename(columns={'arg1':'arg2', "pos1":"pos2"})
-    dataset = pd.merge(dataset, posFrame, on='arg2')
+    if has_2:
+        posFrame = posFrame.rename(columns={'arg1':'arg2', "pos1":"pos2"})
+        dataset = pd.merge(dataset, posFrame, on='arg2')
 
     return dataset
 
@@ -106,7 +108,7 @@ def get_one_hot_pos(parsedProposition, label_binarizer):
     return posVector
 
 
-def add_keyword_feature(dataset):
+def add_keyword_feature(dataset, has_2=True):
     """Add premise and claim flag for every proposition"""
 
     premise_list = read_key_words(PREMISE_FILE)
@@ -117,9 +119,11 @@ def add_keyword_feature(dataset):
     
     
     dataset = pd.merge(dataset, keywords, on='arg1')
-    keywords = keywords.rename(columns = {'arg1':'arg2', 'claimIndicatorArg1':'claimIndicatorArg2', 'premiseIndicatorArg1': 'premiseIndicatorArg2'})
+    if has_2:
+        keywords = keywords.rename(columns = {'arg1':'arg2', 'claimIndicatorArg1':'claimIndicatorArg2', 'premiseIndicatorArg1': 'premiseIndicatorArg2'})
+        dataset = pd.merge(dataset, keywords, on='arg2')
     
-    return pd.merge(dataset, keywords, on='arg2')
+    return dataset 
 
 
 def including_keywords_features(proposition, original,
@@ -189,7 +193,7 @@ def read_key_words(file):
     return [line.rstrip('\n') for line in open(file)]
 
 
-def add_token_feature(dataset, propositionSet, parsedPropositions):
+def add_token_feature(dataset, propositionSet, parsedPropositions, has_2=True):
     """Add number of propositions in the arguments of the dataset"""
 
     numberOfTokens = list()
@@ -203,15 +207,14 @@ def add_token_feature(dataset, propositionSet, parsedPropositions):
     tokenDataFrame = tokenDataFrame.rename(columns={'proposition':'arg1', 'tokens':'tokensArg1'})
 
     dataset = pd.merge(dataset, tokenDataFrame, on='arg1')
-
-    tokenDataFrame = tokenDataFrame.rename(columns={"arg1" : "arg2", "tokensArg1":"tokensArg2"})
-
-    dataset = pd.merge(dataset, tokenDataFrame, on='arg2')
+    if has_2:
+        tokenDataFrame = tokenDataFrame.rename(columns={"arg1" : "arg2", "tokensArg1":"tokensArg2"})
+        dataset = pd.merge(dataset, tokenDataFrame, on='arg2')
 
     return dataset
 
     
-def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False, fullText=False, fullPropositionSet=None, fullParsedPropositions=None):
+def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False, fullText=False, fullPropositionSet=None, fullParsedPropositions=None, has_2=True):
     """Add binary has shared noun and number of shared nouns to the dataset"""
     
     full=""
@@ -251,11 +254,11 @@ def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='a
         temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
         dataset[(ret_keys+'1')] = temp.loc[:,'sharedNouns']
         dataset[(ret_keyn+'1')] = temp.loc[:,'numberOfSharedNouns']    
-
-        temp = dataset[[key2,'fullText1']].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key2])], fullParsedPropositions[fullPropositionSet.index(row['fullText1'])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)        
-        temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
-        dataset[(ret_keys+'2')] = temp.loc[:,'sharedNouns']
-        dataset[(ret_keyn+'2')] = temp.loc[:,'numberOfSharedNouns']         
+        if has_2:
+            temp = dataset[[key2,'fullText1']].apply(lambda row: find_shared_words(parsedPropositions[propositionSet.index(row[key2])], fullParsedPropositions[fullPropositionSet.index(row['fullText1'])], min_length=min_word_length, pos_tag_list=pos_tag_list, stemming=stemming, ps=ps), axis=1)        
+            temp = pd.DataFrame(temp.tolist(), columns=['sharedNouns', 'numberOfSharedNouns'])
+            dataset[(ret_keys+'2')] = temp.loc[:,'sharedNouns']
+            dataset[(ret_keyn+'2')] = temp.loc[:,'numberOfSharedNouns']         
         
     return dataset
 
@@ -288,7 +291,7 @@ def add_same_sentence_feature(dataset):
 
 def add_bert_embeddings(dataset, propositionSet,
                         sentence_feature=True, token_feature=True, original_sentence_feature=True,
-                        bert_embedding=None, pad_no=35):
+                        bert_embedding=None, pad_no=35, has_2=True):
     """Add bert embeddings to the dataset. Use matching tokenizer!"""
     if(bert_embedding is None):
         print("Warning! Match tokenizer to have the same propositions!")
@@ -306,8 +309,9 @@ def add_bert_embeddings(dataset, propositionSet,
         emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
   
         dataset = pd.merge(dataset, emb_frame, on="arg1")
-        emb_frame = emb_frame.rename(columns={"arg1":"arg2","bertArg1":"bertArg2"})
-        dataset = pd.merge(dataset, emb_frame, on="arg2")
+        if has_2:
+            emb_frame = emb_frame.rename(columns={"arg1":"arg2","bertArg1":"bertArg2"})
+            dataset = pd.merge(dataset, emb_frame, on="arg2")
 
     
     if token_feature:
@@ -320,8 +324,9 @@ def add_bert_embeddings(dataset, propositionSet,
         emb_frame["arg1"] = pd.Series(propositionSet, index=emb_frame.index)
   
         dataset = pd.merge(dataset, emb_frame, on="arg1")
-        emb_frame = emb_frame.rename(columns={"arg1":"arg2","bertVector1":"bertVector2"})
-        dataset = pd.merge(dataset, emb_frame, on="arg2")
+        if has_2:
+            emb_frame = emb_frame.rename(columns={"arg1":"arg2","bertVector1":"bertVector2"})
+            dataset = pd.merge(dataset, emb_frame, on="arg2")
         
     if original_sentence_feature:
         original_sentences = list(set(dataset['originalArg1']))
@@ -336,8 +341,9 @@ def add_bert_embeddings(dataset, propositionSet,
         emb_frame["originalArg1"] = pd.Series(original_sentences, index=emb_frame.index)
   
         dataset = pd.merge(dataset, emb_frame, on="originalArg1")
-        emb_frame = emb_frame.rename(columns={"originalArg1":"originalArg2","bertOriginalArg1":"bertOriginalArg2"})
-        dataset = pd.merge(dataset, emb_frame, on="originalArg2")
+        if has_2:
+            emb_frame = emb_frame.rename(columns={"originalArg1":"originalArg2","bertOriginalArg1":"bertOriginalArg2"})
+            dataset = pd.merge(dataset, emb_frame, on="originalArg2")
         
 
     return dataset

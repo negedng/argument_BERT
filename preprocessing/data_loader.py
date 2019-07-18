@@ -6,7 +6,7 @@ import pandas as pd
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 
-def load_from_directory(directory, rst_files=False):
+def load_from_directory(directory, rst_files=False, ADU=False):
     """Load all files in the directory, creates relation matrix for them"""
     print("Loading data from directory")
     print("Detected files: "+str(len(os.listdir(directory))))
@@ -15,7 +15,10 @@ def load_from_directory(directory, rst_files=False):
         if annotation_file[-7:] != "ann.xml":
             continue
         annotation_file_path = os.path.join(directory, annotation_file)
-        file_data = load_single_file(e, annotation_file_path, rst_files)
+        if not ADU:
+            file_data = load_single_file(e, annotation_file_path, rst_files)
+        else:
+            file_data = load_for_ADU_types(e, annotation_file_path)
         data_list = data_list + file_data
     dataFrame = pd.DataFrame.from_dict(data_list, orient='columns')
     print("Loaded data length: " + str(len(dataFrame)))
@@ -50,6 +53,11 @@ def load_single_file(fileID, file_path, rst_files=False):
     relationMatrix = np.zeros(relationMatrix)
 
     propositions = xmlData["Annotation"]["Proposition"]
+    if(propositions[0]["TextPosition"]["@start"] != "-1"):
+        original_text = xmlData["Annotation"]["OriginalText"]
+        original_text2 = original_text.replace('\n',' ')
+        sent_tokenize_list = sent_tokenize(original_text)
+        sens = len(sent_tokenize_list)
 
     for prop_id in range(len(propositions)):
         currentProposition = propositions[prop_id]
@@ -100,10 +108,6 @@ def load_single_file(fileID, file_path, rst_files=False):
                 if "TextPosition" in propositions[i].keys():
                     if(propositions[i]["TextPosition"]["@start"] != "-1" or
                        propositions[j]["TextPosition"]["@start"] != "-1"):
-                        original_text = xmlData["Annotation"]["OriginalText"]
-                        original_text2 = original_text.replace('\n',' ')
-                        sent_tokenize_list = sent_tokenize(original_text)
-                        sens = len(sent_tokenize_list)
 
                         if propositions[i]["TextPosition"]["@start"] != "-1":
                             for sentence in sent_tokenize_list:
@@ -160,6 +164,62 @@ def load_single_file(fileID, file_path, rst_files=False):
                 file_data.append(line_data)
     return file_data
 
+    
+def load_for_ADU_types(fileID, file_path):
+    file_data = list()
+    relationMatrix = {}
+    with open(file_path, "r") as myfile:
+        data = myfile.read()
+
+    argumentationID = fileID
+
+    matrixLength = len(xmlData["Annotation"]["Proposition"])
+    relationCount = 0
+    totalRelation = matrixLength*matrixLength
+    relationMatrix = (matrixLength, matrixLength)
+    relationMatrix = np.zeros(relationMatrix)
+    
+    xmlData = xmltodict.parse(data)
+
+    propositions = xmlData["Annotation"]["Proposition"]
+    if(propositions[0]["TextPosition"]["@start"] != "-1"):
+        original_text = xmlData["Annotation"]["OriginalText"]
+        original_text2 = original_text.replace('\n',' ')
+        sent_tokenize_list = sent_tokenize(original_text)
+        sens = len(sent_tokenize_list)    
+
+    for prop_id in range(len(propositions)):
+        currentProposition = propositions[prop_id]
+
+        if(currentProposition["ADU"]["@type"] != "conclusion"):
+            aduType = 2
+        else if (currentProposition["ADU"]["@type"] != "claim"):
+            aduType = 1
+        else if (currentProposition["ADU"]["@type"] != "premise"):
+            aduType = 0
+        else:
+            raise ValueError('Unexpected ADU type: ' + currentProposition["ADU"]["@type"])
+            
+        arg1 = propositions[i]["text"]
+        originalSentenceArg1 = arg1
+        positArg1 = 0
+        
+        if currentProposition["TextPosition"]["@start"] != "-1":
+            for sentence in sent_tokenize_list:
+
+                if arg1 in sentence:
+                    originalSentenceArg1 = sentence
+                    sen1 = sent_tokenize_list.index(sentence)
+                    
+            positArg1 = int(propositions[i]["TextPosition"]["@start"])
+        line_data = {'argumentationID': argumentationID,
+                     'arg1': arg1,
+                     'originalArg1': originalSentenceArg1,
+                     'label': aduType,
+                     'fullText1': original_text2,
+                     'positArg1': positArg1 / len(original_text2)}
+        file_data.append(line_data)
+    return file_data
 
 def fit_tokenize_length_threshold(proposition):
     """Drop out too long tokens"""

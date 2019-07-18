@@ -54,7 +54,8 @@ def select_argue_features(dataset,
 
 def select_FFNN_features(dataset, shared_features=True,
                          shared_feature_list=None,
-                         original_bert=False):
+                         original_bert=False,
+                         has_2=True):
     """Only global features"""
     
     if shared_feature_list == None:
@@ -62,17 +63,27 @@ def select_FFNN_features(dataset, shared_features=True,
         shared_feature_list = shared_feature_list.drop(['arg1', 'arg2', 'originalArg1', 'originalArg2', 'fullText1', 'argumentationID', 'label', 'originalLabel', 'bertArg1', 'bertArg2', 'bertOriginalArg1', 'bertOriginalArg2', 'vector1', 'vector2', 'pos1', 'pos2', 'bertVector1', 'bertVector2', 'results', 'predicted_label', 'expected_label'], errors='ignore')
     
     sent1 = np.stack(dataset["bertArg1"].to_numpy().ravel())
-    sent2 = np.stack(dataset["bertArg2"].to_numpy().ravel())
+    if has_2:
+        sent2 = np.stack(dataset["bertArg2"].to_numpy().ravel())
     sharedFeatures = dataset[shared_feature_list]
     if not original_bert:
         if not shared_features:
+            if not has_2:
+                return [sent1]
             return [sent1, sent2]
+        if not has_2:
+            return [sent1, sharedFeatures]
         return [sent1, sent2, sharedFeatures]
     
     orig1 = np.stack(dataset["bertOriginalArg1"].to_numpy().ravel())
-    orig2 = np.stack(dataset["bertOriginalArg2"].to_numpy().ravel())
+    if has_2:
+        orig2 = np.stack(dataset["bertOriginalArg2"].to_numpy().ravel())
     if not shared_features:
+        if not has_2:
+            return [sent1, orig1]
         return [sent1, sent2, orig1, orig2]
+    if not has_2:
+        return [sent1, orig1, sharedFeatures]
     return [sent1, sent2, orig1, orig2, sharedFeatures]
 
 
@@ -123,57 +134,73 @@ def build_FFNN(shared_feature_dim, output_dim=2,
                layer_decrease_rate=0.4, dropout_rate=0.2,
                has_shared_features=True, has_original_sentences=False,
                no_sent_arg_layers=2, sent_arg_start_units=300,
-               optimizer="adam", activation='sigmoid'):
+               optimizer="adam", activation='sigmoid',
+               has_2=True):
     """Model using sentence level embeddings of the 2 arguments 
        and shared features"""
        
     # Input layers
     sentence1 = Input((768,), name="sentence1") # See BERT for input dim
-    sentence2 = Input((768,), name="sentence2")
+    if has_2:
+        sentence2 = Input((768,), name="sentence2")
     if has_shared_features:
         sharedF = Input(shared_feature_dim, name="sharedFeatures")
     if has_original_sentences:
         original1 = Input((768,), name="original1")
-        original2 = Input((768,), name="original2")
+        if has_2:
+            original2 = Input((768,), name="original2")
     
     # Dense layers of the inputs
     separate_units = separate_start_units
     dense1 = Dense(separate_units, activation=activation)(sentence1)
-    dense2 = Dense(separate_units, activation=activation)(sentence2)
+    if has_2:
+        dense2 = Dense(separate_units, activation=activation)(sentence2)
     if has_original_sentences:
         denseOriginal1 = Dense(separate_units, activation=activation)(original1)
-        denseOriginal2 = Dense(separate_units, activation=activation)(original2)
+        if has_2:
+            denseOriginal2 = Dense(separate_units, activation=activation)(original2)
     for i in range(1,no_separate_layers):
         separate_units = int(separate_units*layer_decrease_rate)
         dense1 = Dropout(rate=dropout_rate)(dense1)
-        dense2 = Dropout(rate=dropout_rate)(dense2)
         dense1 = Dense(separate_units, activation=activation)(dense1)
-        dense2 = Dense(separate_units, activation=activation)(dense2)
+        if has_2:
+            dense2 = Dropout(rate=dropout_rate)(dense2)
+            dense2 = Dense(separate_units, activation=activation)(dense2)
         if has_original_sentences:
             denseOriginal1 = Dropout(rate=dropout_rate)(denseOriginal1)
-            denseOriginal2 = Dropout(rate=dropout_rate)(denseOriginal2)
             denseOriginal1 = Dense(separate_units, activation=activation)(denseOriginal1)
-            denseOriginal2 = Dense(separate_units, activation=activation)(denseOriginal2)
+            if has_2:
+                denseOriginal2 = Dropout(rate=dropout_rate)(denseOriginal2)
+                denseOriginal2 = Dense(separate_units, activation=activation)(denseOriginal2)
     
     # Concat argument and sentence layers
     if has_original_sentences:
-        concat1 = concatenate([dense1, denseOriginal1], axis=-1)
-        concat2 = concatenate([dense2, denseOriginal2], axis=-1)
         arg_sent_units = sent_arg_start_units
+        concat1 = concatenate([dense1, denseOriginal1], axis=-1)
         dense1 = Dense(arg_sent_units, activation=activation)(concat1)
-        dense2 = Dense(arg_sent_units, activation=activation)(concat2)
+        if has_2:
+            concat2 = concatenate([dense2, denseOriginal2], axis=-1)
+            dense2 = Dense(arg_sent_units, activation=activation)(concat2)
         for i in range(1, no_sent_arg_layers):
             arg_sent_units = int(arg_sent_units*layer_decrease_rate)
             dense1 = Dropout(rate=dropout_rate)(dense1)
-            dense2 = Dropout(rate=dropout_rate)(dense2)
             dense1 = Dense(arg_sent_units, activation=activation)(dense1)
-            dense2 = Dense(arg_sent_units, activation=activation)(dense2)
+            if has_2:
+                dense2 = Dropout(rate=dropout_rate)(dense2)
+                dense2 = Dense(arg_sent_units, activation=activation)(dense2)
     
     # Concat with shared features and each other
     if has_shared_features:
-        concatenateLayer = concatenate([dense1, dense2, sharedF], axis=-1)
+        if has_2:
+            concatenateLayer = concatenate([dense1, dense2, sharedF], axis=-1)
+        else:
+            concatenateLayer = concatenate([dense1, sharedF], axis=-1)
     else:
-        concatenateLayer = concatenate([dense1, dense2], axis=-1)
+        if has_2:
+            concatenateLayer = concatenate([dense1, dense2], axis=-1)
+        else:
+            concatenateLayer = concatenate([dense1], axis=-1)
+        
     concat_units = concat_start_units
     dense = Dense(concat_units, activation=activation)(concatenateLayer)
     for i in range(1,no_concat_layers):
@@ -182,18 +209,30 @@ def build_FFNN(shared_feature_dim, output_dim=2,
         dense = Dense(concat_units, activation=activation)(dense)
         
     # Softmax output
-    softmax = Dense(2, activation='softmax')(dense)
+    softmax = Dense(output_dim, activation='softmax')(dense)
     
     if has_shared_features:
         if has_original_sentences:
-            model = Model(inputs=[sentence1, sentence2, original1, original2, sharedF], outputs=[softmax])
+            if has_2:
+                model = Model(inputs=[sentence1, sentence2, original1, original2, sharedF], outputs=[softmax])
+            else:
+                model = Model(inputs=[sentence1, original1, sharedF], outputs=[softmax])
         else:
-            model = Model(inputs=[sentence1, sentence2, sharedF], outputs=[softmax])
+            if has_2:
+                model = Model(inputs=[sentence1, sentence2, sharedF], outputs=[softmax])
+            else:
+                model = Model(inputs=[sentence1, sharedF], outputs=[softmax])
     else:
         if has_original_sentences:
-            model = Model(inputs=[sentence1, sentence2, original1, original2], outputs=[softmax])
+            if has_2:
+                model = Model(inputs=[sentence1, sentence2, original1, original2], outputs=[softmax])
+            else:
+                model = Model(inputs=[sentence1, original1], outputs=[softmax])
         else:
-            model = Model(inputs=[sentence1, sentence2], outputs=[softmax])
+            if has_2:
+                model = Model(inputs=[sentence1, sentence2], outputs=[softmax])
+            else:
+                model = Model(inputs=[sentence1], outputs=[softmax])
 
     if output_dim == 2:
         loss="binary_crossentropy"
