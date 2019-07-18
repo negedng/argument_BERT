@@ -192,11 +192,11 @@ def load_for_ADU_types(fileID, file_path):
     for prop_id in range(len(propositions)):
         currentProposition = propositions[prop_id]
 
-        if(currentProposition["ADU"]["@type"] != "conclusion"):
+        if(currentProposition["ADU"]["@type"] == "conclusion"):
             aduType = 2
-        elif (currentProposition["ADU"]["@type"] != "claim"):
+        elif (currentProposition["ADU"]["@type"] == "claim"):
             aduType = 1
-        elif (currentProposition["ADU"]["@type"] != "premise"):
+        elif (currentProposition["ADU"]["@type"] == "premise"):
             aduType = 0
         else:
             raise ValueError('Unexpected ADU type: ' + currentProposition["ADU"]["@type"])
