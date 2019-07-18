@@ -216,7 +216,8 @@ def add_token_feature(dataset, propositionSet, parsedPropositions, has_2=True):
     
 def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False, fullText=False, fullPropositionSet=None, fullParsedPropositions=None, has_2=True):
     """Add binary has shared noun and number of shared nouns to the dataset"""
-    
+    if (not has_2) or (not fullText):
+        return
     full=""
     if fullText:
         full="Full"
