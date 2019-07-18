@@ -78,7 +78,7 @@ def related_unrelated_report(model, features_test, y_test, target_names=None):
                 target_names = ['nonrelated', 'support', 'attack']
             else:
                 if numberOfClasses == 5:
-                    target_names = ['neqattack', 'neqsupport', 'nonrelated', 'support', 'attack']
+                    target_names = ['nonrelated', 'support', 'attack', 'attacked', 'supported']
                 else:
                     target_names = None
     
