@@ -282,9 +282,10 @@ def find_shared_words(proposition, partner, min_length=0, pos_tag_list=['NN'], s
     return [shared, len(intersection)]
 
 
-def add_same_sentence_feature(dataset):
+def add_same_sentence_feature(dataset, has_2=True):
     """Add binary feature true if the two argument has the same original sentence"""
-
+    if not has_2:
+        return
     dataset["sameSentence"] = dataset[['originalArg1','arg2']].apply(lambda row: int(bool(row['arg2'] in row['originalArg1'])), axis=1)
 
     return dataset
