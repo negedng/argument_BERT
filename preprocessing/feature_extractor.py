@@ -299,6 +299,7 @@ def add_bert_embeddings(dataset,
         print("Warning! Match tokenizer to have the same propositions!")
         bert_embedding = BertEmbedding(model='bert_12_768_12', dataset_name='book_corpus_wiki_en_cased')
     
+    print(dataset['arg1'][:10])
     propositionSet = list(set(dataset['arg1']))
     
     embeddingSet = bert_embedding(propositionSet, filter_spec_tokens=False)
