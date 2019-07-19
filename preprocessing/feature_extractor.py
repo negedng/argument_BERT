@@ -290,7 +290,7 @@ def add_same_sentence_feature(dataset):
     return dataset
 
 
-def add_bert_embeddings(dataset, key,
+def add_bert_embeddings(dataset,
                         sentence_feature=True, token_feature=True, original_sentence_feature=True,
                         bert_embedding=None, pad_no=35, has_2=True):
     """Add bert embeddings to the dataset. Use matching tokenizer!"""
@@ -298,7 +298,7 @@ def add_bert_embeddings(dataset, key,
         print("Warning! Match tokenizer to have the same propositions!")
         bert_embedding = BertEmbedding(model='bert_12_768_12', dataset_name='book_corpus_wiki_en_cased')
     
-    propositionSet = dataset[key].drop_duplicates().to_list()
+    propositionSet = list(set(dataset['arg1']))
     
     embeddingSet = bert_embedding(propositionSet, filter_spec_tokens=False)
     
