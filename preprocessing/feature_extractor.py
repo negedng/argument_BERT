@@ -217,7 +217,7 @@ def add_token_feature(dataset, propositionSet, parsedPropositions, has_2=True):
 def add_shared_words_feature(dataset, propositionSet, parsedPropositions, key='arg', word_type="nouns", min_word_length=0, stemming=False, fullText=False, fullPropositionSet=None, fullParsedPropositions=None, has_2=True):
     """Add binary has shared noun and number of shared nouns to the dataset"""
     if (not has_2) or (not fullText):
-        return
+        return dataset
     full=""
     if fullText:
         full="Full"
@@ -285,7 +285,7 @@ def find_shared_words(proposition, partner, min_length=0, pos_tag_list=['NN'], s
 def add_same_sentence_feature(dataset, has_2=True):
     """Add binary feature true if the two argument has the same original sentence"""
     if not has_2:
-        return
+        return dataset
     dataset["sameSentence"] = dataset[['originalArg1','arg2']].apply(lambda row: int(bool(row['arg2'] in row['originalArg1'])), axis=1)
 
     return dataset
@@ -299,7 +299,6 @@ def add_bert_embeddings(dataset,
         print("Warning! Match tokenizer to have the same propositions!")
         bert_embedding = BertEmbedding(model='bert_12_768_12', dataset_name='book_corpus_wiki_en_cased')
     
-    print(dataset[:10])
     propositionSet = list(set(dataset['arg1']))
     
     embeddingSet = bert_embedding(propositionSet, filter_spec_tokens=False)
