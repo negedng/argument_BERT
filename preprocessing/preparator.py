@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from sklearn.model_selection import train_test_split as sk_train_test_split
 import numpy as np
 import pandas as pd
@@ -7,17 +10,22 @@ from sklearn.utils import shuffle as sk_shuffle
 def input_output_split(dataset):
     """Prepare dataset to training. Starts feature extracting.
     Returns x_data, y_data"""
+
     y_data = dataset['label'].to_numpy()
     numberOfLabels = np.unique(y_data).shape[0]
     y_data = np.identity(numberOfLabels)[y_data.astype(int).flatten()]
 
     x_data = dataset.drop(['label', 'argumentationID'], axis=1)
 
-    return x_data, y_data
+    return (x_data, y_data)
 
 
-def change_labels(dataset, attack=False, bidirect="abs",
-                  save_original=True):
+def change_labels(
+    dataset,
+    attack=False,
+    bidirect='abs',
+    save_original=True,
+    ):
     """Changes the labels depending on the classification task
         parameter:
         dataset: pandas dataframe containing the data
@@ -36,14 +44,13 @@ def change_labels(dataset, attack=False, bidirect="abs",
         dataset.loc[dataset.label == 2, 'label'] = 1
         dataset.loc[dataset.label == -2, 'label'] = -1
 
-    if bidirect=="abs":
+    if bidirect == 'abs':
         dataset.loc[dataset.label == -1, 'label'] = 1
         dataset.loc[dataset.label == -2, 'label'] = 2
     else:
-        if bidirect == "zero":
+        if bidirect == 'zero':
             dataset.loc[dataset.label == -1, 'label'] = 0
             dataset.loc[dataset.label == -2, 'label'] = 0
-        
 
     return dataset
 
@@ -54,14 +61,14 @@ def train_test_split(dataset, split_ratio=0.1):
         dataset: pandas dataframe containing the data
         split_ratio: ratio of the test data
     """
-    train_data, test_data = sk_train_test_split(dataset,
-                                                test_size=split_ratio,
-                                                random_state=42)
 
-    x_train, y_train = input_output_split(train_data)
-    x_test, y_test = input_output_split(test_data)
+    (train_data, test_data) = sk_train_test_split(dataset,
+            test_size=split_ratio, random_state=42)
 
-    return x_train, x_test, y_train, y_test
+    (x_train, y_train) = input_output_split(train_data)
+    (x_test, y_test) = input_output_split(test_data)
+
+    return (x_train, x_test, y_train, y_test)
 
 
 def balance_dataset(dataset, balance_ratio):
@@ -69,42 +76,43 @@ def balance_dataset(dataset, balance_ratio):
         dataset: pandas dataframe containing the data
         balancing: precentage of the balancing -> 0.5 = equal 50-50 balncing
     """
+
     RELATION_RATIO = balance_ratio
 
     labelMatrix = dataset['label'].to_numpy()
     numberOfRelations = np.count_nonzero(labelMatrix)
-    relationRatio = numberOfRelations/len(dataset)
-    
+    relationRatio = numberOfRelations / len(dataset)
 
     if relationRatio < RELATION_RATIO:
         dataset['labelAbs'] = dataset['label'].abs()
 
-        print("-----DATA IS UNBALANCED CURRENT SIZE: " + str(len(dataset)) +
-              " CLASS RATIO: " + str(relationRatio) + " ... BALANCING DATA")
+        print '-----DATA IS UNBALANCED CURRENT SIZE: ' \
+            + str(len(dataset)) + ' CLASS RATIO: ' + str(relationRatio) \
+            + ' ... BALANCING DATA'
 
         shuffled = sk_shuffle(dataset)
 
-        orderedDataset = shuffled.sort_values(by=['labelAbs'], ascending=False)
-        cutOff = int((1/RELATION_RATIO)*numberOfRelations)
+        orderedDataset = shuffled.sort_values(by=['labelAbs'],
+                ascending=False)
+        cutOff = int(1 / RELATION_RATIO * numberOfRelations)
 
         balanced = sk_shuffle(orderedDataset.head(cutOff))
         balanced = balanced.drop('labelAbs', axis=1)
 
-        print("-----BALANCED DATASET WITH SIZE: "+str(len(balanced)))
+        print '-----BALANCED DATASET WITH SIZE: ' + str(len(balanced))
         return balanced
-
     else:
 
-        print("-----DATASET IS ALREADY BALANCED - CLASS RATIO: " +
-              str(relationRatio) + "-----")
+        print '-----DATASET IS ALREADY BALANCED - CLASS RATIO: ' \
+            + str(relationRatio) + '-----'
 
         return dataset
 
 
-def lower_texts(dataset,
-                columns=['arg1', 'arg2', 'originalArg1', 'originalArg2']):
+def lower_texts(dataset, columns=['arg1', 'arg2', 'originalArg1',
+                'originalArg2']):
     """Lower texts in arg1, arg2, originalArg1, originalArg2"""
+
     for column in columns:
         dataset[column] = dataset[column].apply(lambda row: row.lower())
     return dataset
-    
