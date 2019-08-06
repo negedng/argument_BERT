@@ -20,12 +20,11 @@ def input_output_split(dataset):
     return (x_data, y_data)
 
 
-def change_labels(
-    dataset,
-    attack=False,
-    bidirect='abs',
-    save_original=True,
-    ):
+def change_labels(dataset,
+                  attack=False,
+                  bidirect='abs',
+                  save_original=True,
+                  ):
     """Changes the labels depending on the classification task
         parameter:
         dataset: pandas dataframe containing the data
@@ -63,7 +62,8 @@ def train_test_split(dataset, split_ratio=0.1):
     """
 
     (train_data, test_data) = sk_train_test_split(dataset,
-            test_size=split_ratio, random_state=42)
+                                                  test_size=split_ratio,
+                                                  random_state=42)
 
     (x_train, y_train) = input_output_split(train_data)
     (x_test, y_test) = input_output_split(test_data)
@@ -93,7 +93,7 @@ def balance_dataset(dataset, balance_ratio):
         shuffled = sk_shuffle(dataset)
 
         orderedDataset = shuffled.sort_values(by=['labelAbs'],
-                ascending=False)
+                                              ascending=False)
         cutOff = int(1 / RELATION_RATIO * numberOfRelations)
 
         balanced = sk_shuffle(orderedDataset.head(cutOff))

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 # Based on https://github.com/Milzi/ArguE/blob/master/DataLoader.py
 
 import os
@@ -20,8 +21,7 @@ def load_from_directory(directory, rst_files=False, ADU=False):
             continue
         annotation_file_path = os.path.join(directory, annotation_file)
         if not ADU:
-            file_data = load_single_file(e, annotation_file_path,
-                    rst_files)
+            file_data = load_single_file(e, annotation_file_path, rst_files)
         else:
             file_data = load_for_ADU_types(e, annotation_file_path)
         data_list = data_list + file_data
@@ -69,21 +69,18 @@ def load_single_file(fileID, file_path, rst_files=False):
         currentProposition = propositions[prop_id]
 
         if currentProposition['ADU']['@type'] != 'conclusion' \
-            and 'Relation' in currentProposition.keys():
+           and 'Relation' in currentProposition.keys():
 
             partners = list()
             relationTypeList = list()
 
             if currentProposition['Relation'].__class__ \
-                == list().__class__:
-                for relation in range(len(currentProposition['Relation'
-                        ])):
-                    relation_data = currentProposition['Relation'
-                            ][relation]
+               == list().__class__:
+                for relation in range(len(currentProposition['Relation'])):
+                    relation_data = currentProposition['Relation'][relation]
 
                     partners.append(relation_data['@partnerID'])
-                    relationTypeList.append(relation_data['@typeBinary'
-                            ])
+                    relationTypeList.append(relation_data['@typeBinary'])
             else:
 
                 relation_data = currentProposition['Relation']
@@ -93,7 +90,7 @@ def load_single_file(fileID, file_path, rst_files=False):
             for partner_id in range(len(partners)):
                 for prop_id2 in range(len(propositions)):
                     if partners[partner_id] \
-                        == propositions[prop_id2]['@id']:
+                       == propositions[prop_id2]['@id']:
                         if relationTypeList[partner_id] == '0':
                             relationMatrix[prop_id][prop_id2] = 1
                             relationMatrix[prop_id2][prop_id] = -1
@@ -110,7 +107,7 @@ def load_single_file(fileID, file_path, rst_files=False):
                 proposition1 = propositions[i]['text']
                 proposition2 = propositions[j]['text']
                 if fit_tokenize_length_threshold(proposition1) \
-                    or fit_tokenize_length_threshold(proposition2):
+                   or fit_tokenize_length_threshold(proposition2):
                     continue
 
                 originalSentenceArg1 = propositions[i]['text']
@@ -118,26 +115,23 @@ def load_single_file(fileID, file_path, rst_files=False):
 
                 if 'TextPosition' in propositions[i].keys():
                     if propositions[i]['TextPosition']['@start'] \
-                        != '-1' or propositions[j]['TextPosition'
-                            ]['@start'] != '-1':
+                       != '-1' or propositions[j]['TextPosition'
+                                                  ]['@start'] != '-1':
 
                         if propositions[i]['TextPosition']['@start'] \
-                            != '-1':
+                           != '-1':
                             for sentence in sent_tokenize_list:
 
                                 if propositions[i]['text'] in sentence:
                                     originalSentenceArg1 = sentence
-                                    sen1 = \
-    sent_tokenize_list.index(sentence)
+                                    sen1 = sent_tokenize_list.index(sentence)
 
-                        if propositions[j]['TextPosition']['@start'] \
-                            != '-1':
+                        if propositions[j]['TextPosition']['@start'] != '-1':
 
                             for sentence in sent_tokenize_list:
                                 if propositions[j]['text'] in sentence:
                                     originalSentenceArg2 = sentence
-                                    sen2 = \
-    sent_tokenize_list.index(sentence)
+                                    sen2 = sent_tokenize_list.index(sentence)
 
                 line_data = {
                     'argumentationID': argumentationID,
@@ -151,9 +145,9 @@ def load_single_file(fileID, file_path, rst_files=False):
 
                 if rst_files:
                     arg1_range = get_edus(propositions[i]['text'],
-                            recovered_string, prop_edu_dict)
+                                          recovered_string, prop_edu_dict)
                     arg2_range = get_edus(propositions[j]['text'],
-                            recovered_string, prop_edu_dict)
+                                          recovered_string, prop_edu_dict)
                     arg1_rsts = get_rst_stats(arg1_range, edges)
                     arg2_rsts = get_rst_stats(arg2_range, edges)
                     cn1 = arg1_rsts['connected_nodes']
@@ -173,13 +167,10 @@ def load_single_file(fileID, file_path, rst_files=False):
 #                    line_data['posEduArg1'] = arg1_range[0]
 #                    line_data['posEduArg2'] = arg2_range[0]
 
-                positArg1 = int(propositions[i]['TextPosition']['@start'
-                                ])
-                positArg2 = int(propositions[j]['TextPosition']['@start'
-                                ])
+                positArg1 = int(propositions[i]['TextPosition']['@start'])
+                positArg2 = int(propositions[j]['TextPosition']['@start'])
                 if positArg1 != -1 and positArg2 != -1:
-                    posit = abs((positArg1 - positArg2)
-                                / len(original_text))
+                    posit = abs((positArg1 - positArg2) / len(original_text))
                     line_data['positionDiff'] = posit
                     senit = abs(sen1 - sen2)
                     line_data['sentenceDiff'] = senit / sens
@@ -222,8 +213,8 @@ def load_for_ADU_types(fileID, file_path):
         elif currentProposition['ADU']['@type'] == 'premise':
             aduType = 0
         else:
-            raise ValueError('Unexpected ADU type: '
-                             + currentProposition['ADU']['@type'])
+            err_ADU = currentProposition['ADU']['@type']
+            raise ValueError('Unexpected ADU type: ' + err_ADU)
 
         arg1 = currentProposition['text']
         originalSentenceArg1 = arg1
@@ -236,8 +227,7 @@ def load_for_ADU_types(fileID, file_path):
                     originalSentenceArg1 = sentence
                     sen1 = sent_tokenize_list.index(sentence)
 
-            positArg1 = int(currentProposition['TextPosition']['@start'
-                            ])
+            positArg1 = int(currentProposition['TextPosition']['@start'])
         line_data = {
             'argumentationID': argumentationID,
             'arg1': arg1,
@@ -308,13 +298,13 @@ def load_merge(file_path):
     for proposition in props:
         ws = ''
         if proposition[2] not in [
-            "'",
-            '.',
-            ',',
-            '?',
-            '!',
-            "'s",
-            ]:
+                                  "'",
+                                  '.',
+                                  ',',
+                                  '?',
+                                  '!',
+                                  "'s",
+                                  ]:
             ws = ' '
         prop_edu_dict[len(recovered_string)] = int(proposition[-1])
         recovered_string += ws + proposition[2]

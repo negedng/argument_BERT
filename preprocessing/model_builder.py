@@ -19,17 +19,20 @@ def select_w2v_features(dataset):
     return (arg1vectors, arg2vectors)
 
 
-def select_argue_features(dataset, shared_feature_list=[
-    'claimIndicatorArg1',
-    'premiseIndicatorArg1',
-    'claimIndicatorArg2',
-    'premiseIndicatorArg2',
-    'sameSentence',
-    'sharedNouns',
-    'numberOfSharedNouns',
-    'tokensArg1',
-    'tokensArg2',
-    ], sentence_feature_list=['vector', 'pos']):
+def select_argue_features(dataset,
+                          shared_feature_list=[
+                              'claimIndicatorArg1',
+                              'premiseIndicatorArg1',
+                              'claimIndicatorArg2',
+                              'premiseIndicatorArg2',
+                              'sameSentence',
+                              'sharedNouns',
+                              'numberOfSharedNouns',
+                              'tokensArg1',
+                              'tokensArg2',
+                              ],
+                          sentence_feature_list=['vector',
+                                                 'pos']):
     """Select features to match ArguE model setup"""
 
     sentence1 = np.array([])
@@ -37,10 +40,8 @@ def select_argue_features(dataset, shared_feature_list=[
     first_iteration = True
 
     for feature in sentence_feature_list:
-        next_f1 = np.stack(dataset[str(feature + '1'
-                           )].to_numpy().ravel())
-        next_f2 = np.stack(dataset[str(feature + '2'
-                           )].to_numpy().ravel())
+        next_f1 = np.stack(dataset[str(feature + '1')].to_numpy().ravel())
+        next_f2 = np.stack(dataset[str(feature + '2')].to_numpy().ravel())
         if first_iteration:
             sentence1 = next_f1
         else:
@@ -56,16 +57,15 @@ def select_argue_features(dataset, shared_feature_list=[
     return (sentence1, sentence2, sharedFeatures)
 
 
-def select_FFNN_features(
-    dataset,
-    shared_features=True,
-    shared_feature_list=None,
-    original_bert=False,
-    has_2=True,
-    ):
+def select_FFNN_features(dataset,
+                         shared_features=True,
+                         shared_feature_list=None,
+                         original_bert=False,
+                         has_2=True,
+                         ):
     """Only global features"""
 
-    if shared_feature_list == None:
+    if shared_feature_list is None:
         shared_feature_list = dataset.columns
         shared_feature_list = shared_feature_list.drop([
             'arg1',
@@ -116,14 +116,13 @@ def select_FFNN_features(
     return [sent1, sent2, orig1, orig2, sharedFeatures]
 
 
-def build_simple_w2v_LSTM(
-    input_dim,
-    output_dim=2,
-    units_LSTM=16,
-    units_Dense=500,
-    loss='binary_crossentropy',
-    optimizer='adam',
-    ):
+def build_simple_w2v_LSTM(input_dim,
+                          output_dim=2,
+                          units_LSTM=16,
+                          units_Dense=500,
+                          loss='binary_crossentropy',
+                          optimizer='adam',
+                          ):
     """Set up a simple w2v lstm model
     """
 
@@ -142,15 +141,14 @@ def build_simple_w2v_LSTM(
     return model
 
 
-def build_argue_RNN(
-    lstm_input_dim,
-    sharedFeatures_input_dim,
-    output_dim=2,
-    units_LSTM=16,
-    units_Dense=500,
-    loss='binary_crossentropy',
-    optimizer='adam',
-    ):
+def build_argue_RNN(lstm_input_dim,
+                    sharedFeatures_input_dim,
+                    output_dim=2,
+                    units_LSTM=16,
+                    units_Dense=500,
+                    loss='binary_crossentropy',
+                    optimizer='adam',
+                    ):
     """ArguE model build"""
 
     sentence1 = Input(lstm_input_dim, name='sentence1')
@@ -172,24 +170,23 @@ def build_argue_RNN(
     return model
 
 
-def build_FFNN(
-    shared_feature_dim,
-    output_dim=2,
-    no_separate_layers=2,
-    separate_start_units=300,
-    no_concat_layers=2,
-    concat_start_units=300,
-    layer_decrease_rate=0.4,
-    dropout_rate=0.2,
-    has_shared_features=True,
-    has_original_sentences=False,
-    no_sent_arg_layers=2,
-    sent_arg_start_units=300,
-    optimizer='adam',
-    activation='sigmoid',
-    has_2=True,
-    ):
-    """Model using sentence level embeddings of the 2 arguments 
+def build_FFNN(shared_feature_dim,
+               output_dim=2,
+               no_separate_layers=2,
+               separate_start_units=300,
+               no_concat_layers=2,
+               concat_start_units=300,
+               layer_decrease_rate=0.4,
+               dropout_rate=0.2,
+               has_shared_features=True,
+               has_original_sentences=False,
+               no_sent_arg_layers=2,
+               sent_arg_start_units=300,
+               optimizer='adam',
+               activation='sigmoid',
+               has_2=True,
+               ):
+    """Model using sentence level embeddings of the 2 arguments
        and shared features"""
 
     # Input layers
@@ -232,7 +229,7 @@ def build_FFNN(
                 denseOriginal2 = \
                     Dropout(rate=dropout_rate)(denseOriginal2)
                 denseOriginal2 = Dense(separate_units,
-                        activation=activation)(denseOriginal2)
+                                       activation=activation)(denseOriginal2)
 
     # Concat argument and sentence layers
 
@@ -258,8 +255,7 @@ def build_FFNN(
 
     if has_shared_features:
         if has_2:
-            concatenateLayer = concatenate([dense1, dense2, sharedF],
-                    axis=-1)
+            concatenateLayer = concatenate([dense1, dense2, sharedF], axis=-1)
         else:
             concatenateLayer = concatenate([dense1, sharedF], axis=-1)
     else:

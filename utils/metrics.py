@@ -54,28 +54,25 @@ def draw_ROC_curve(y_true, y_pred, verbose=1):
     try:
         no_classes = np.shape(y_true)[1]
         for i in range(no_classes):
-            (fpr[i], tpr[i], thr[i]) = roc_curve(y_true[:, i], y_pred[:
-                    , i])
+            (fpr[i], tpr[i], thr[i]) = roc_curve(y_true[:, i], y_pred[:, i])
     except IndexError:
         (fpr[0], tpr[0], thr[0]) = roc_curve(y_true, y_pred)
     plt.figure()
 
     if verbose > 0:
         for i in fpr.keys():
-            plt.plot(fpr[i], tpr[i], label='ROC curve for class '
-                     + str(i))
+            plt.plot(fpr[i], tpr[i], label='ROC curve for class ' + str(i))
         plt.plot([0, 1], [0, 1], linestyle='--')
         plt.legend()
         plt.show()
     return (fpr, tpr, thr)
 
 
-def related_unrelated_report(
-    model,
-    features_test,
-    y_test,
-    target_names=None,
-    ):
+def related_unrelated_report(model,
+                             features_test,
+                             y_test,
+                             target_names=None,
+                             ):
     prediction = model.predict(features_test)
 
     numberOfClasses = y_test.shape[1]
@@ -83,7 +80,7 @@ def related_unrelated_report(
     position = np.argmax(prediction, axis=-1)
     y_pred = np.identity(numberOfClasses)[position]
 
-    if target_names == None:
+    if target_names is None:
         if numberOfClasses == 2:
             target_names = ['nonrelated', 'related']
         else:
