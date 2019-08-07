@@ -89,7 +89,7 @@ def select_FFNN_features(dataset,
             'results',
             'predicted_label',
             'expected_label',
-            ], errors='ignore', axis=1)
+            ], errors='ignore')
 
     sent1 = np.stack(dataset['bertArg1'].to_numpy().ravel())
     if has_2:
