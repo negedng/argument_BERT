@@ -86,9 +86,9 @@ def balance_dataset(dataset, balance_ratio):
     if relationRatio < RELATION_RATIO:
         dataset['labelAbs'] = dataset['label'].abs()
 
-        print '-----DATA IS UNBALANCED CURRENT SIZE: ' \
-            + str(len(dataset)) + ' CLASS RATIO: ' + str(relationRatio) \
-            + ' ... BALANCING DATA'
+        print('-----DATA IS UNBALANCED CURRENT SIZE: '
+            + str(len(dataset)) + ' CLASS RATIO: ' + str(relationRatio)
+            + ' ... BALANCING DATA')
 
         shuffled = sk_shuffle(dataset)
 
@@ -99,12 +99,12 @@ def balance_dataset(dataset, balance_ratio):
         balanced = sk_shuffle(orderedDataset.head(cutOff))
         balanced = balanced.drop('labelAbs', axis=1)
 
-        print '-----BALANCED DATASET WITH SIZE: ' + str(len(balanced))
+        print('-----BALANCED DATASET WITH SIZE: ' + str(len(balanced)))
         return balanced
     else:
 
-        print '-----DATASET IS ALREADY BALANCED - CLASS RATIO: ' \
-            + str(relationRatio) + '-----'
+        print('-----DATASET IS ALREADY BALANCED - CLASS RATIO: '
+            + str(relationRatio) + '-----')
 
         return dataset
 
