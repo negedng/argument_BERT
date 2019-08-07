@@ -432,7 +432,6 @@ def add_bert_embeddings(dataset,
     """Add bert embeddings to the dataset. Use matching tokenizer!"""
 
     if bert_embedding is None:
-        print 'Warning! Match tokenizer to have the same propositions!'
         bert_dataset = 'book_corpus_wiki_en_cased'
         bert_embedding = BertEmbedding(model='bert_12_768_12',
                                        dataset_name=bert_dataset)
