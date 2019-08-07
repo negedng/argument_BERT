@@ -34,7 +34,7 @@ def classification_report_with_threshold(y_true, y_pred, th=None):
 
     y_true = decode_one_hot(y_true)
     if th is not None:
-        print 'Apply threshold'
+        print('Apply threshold')
         y_pred = apply_threshold(y_pred, th)
     y_pred = decode_one_hot(y_pred)
     rep = classification_report(y_true, y_pred)
@@ -93,8 +93,8 @@ def related_unrelated_report(model,
                 else:
                     target_names = None
 
-    print classification_report(y_test, y_pred,
-                                target_names=target_names)
+    print(classification_report(y_test, y_pred,
+                                target_names=target_names))
 
 
 def adu_report(model, features_test, y_test):
