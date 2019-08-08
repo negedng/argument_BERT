@@ -539,12 +539,10 @@ def add_sentiment_scores(dataset, key='arg', has_2=True):
 
     sid_obj = SentimentIntensityAnalyzer()
     key_t = key.title()
-    all_args = pd.concat([dataset[[key + '1']],
-                          dataset[[key + '2']
-                          ].rename(columns={key + '2':key + '1'})])
-    sentiments = all_args.drop_duplicates().apply(lambda row:
-                                                  sentiment_scores(row,
-                                                                   sid_obj))
+    sentiments = dataset[key + '1'
+                         ].drop_duplicates(
+                             ).apply(lambda row:
+                                     sentiment_scores(row, sid_obj))
     sentiments = pd.DataFrame(sentiments.tolist(),
                               columns=[
                                   key + '1',
@@ -556,11 +554,16 @@ def add_sentiment_scores(dataset, key='arg', has_2=True):
     if not has_2:
         return dataset
 
-    sentiments = sentiments.rename(columns={
-        key + '1': key + '2',
-        'sentNeg' + key_t + '1': 'sentNeg' + key_t + '2',
-        'sentNeu' + key_t + '1': 'sentNeu' + key_t + '2',
-        'sentPos' + key_t + '1': 'sentPos' + key_t + '2',
-        'sentCompound' + key_t + '1': 'sentCompound' + key_t + '2',
-        })
+    sentiments = dataset[key + '2'
+                         ].drop_duplicates(
+                             ).apply(lambda row:
+                                     sentiment_scores(row, sid_obj))
+    sentiments = pd.DataFrame(sentiments.tolist(),
+                              columns=[
+                                  key + '2',
+                                  'sentNeg' + key_t + '2',
+                                  'sentNeu' + key_t + '2',
+                                  'sentPos' + key_t + '2',
+                                  'sentCompound' + key_t + '2'])
+    dataset = pd.merge(dataset, sentiments, on=key + '2')
     return pd.merge(dataset, sentiments, on=key + '2')
