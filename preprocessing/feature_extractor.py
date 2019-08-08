@@ -28,7 +28,8 @@ CLAIM_FILE = current_dir + '/claim_indicator.txt'
 
 
 def get_propositions(dataset, column='arg1',
-                     tokenizer=nltk.tokenize.word_tokenize):
+                     tokenizer=nltk.tokenize.word_tokenize,
+                     only_props=False):
     """Parse propositions
     dataset: the original dataframe
     tokenizer: nltk.tokenize.word_tokenize, bert-embedding.tokenizer, etc.
@@ -48,6 +49,8 @@ def get_propositions(dataset, column='arg1',
     propositionSet = list(dict.fromkeys(propositionSet))
     parsedPropositions = list()
     
+    if only_props:
+        return (propositionSet, parsedPropositions)
 
     for proposition in propositionSet:
         words = tokenizer(proposition)
@@ -451,7 +454,8 @@ def add_bert_embeddings(dataset,
         bert_embedding = BertEmbedding(model='bert_12_768_12',
                                        dataset_name=bert_dataset)
 
-    propositionSet = list(set(dataset['arg1']))
+    propositionSet, _ = get_propositions(dataset, column='arg1',
+                                         only_props=True)
 
     embeddingSet = bert_embedding(propositionSet,
                                   filter_spec_tokens=False)
@@ -493,7 +497,9 @@ def add_bert_embeddings(dataset,
             dataset = pd.merge(dataset, emb_frame, on='arg2')
 
     if original_sentence_feature:
-        original_sentences = list(set(dataset['originalArg1']))
+        original_sentences, _ = get_propositions(dataset,
+                                                 column='originalArg1',
+                                                 only_props=True)
         embeddingSet = bert_embedding(original_sentences,
                                       filter_spec_tokens=False)
 
@@ -533,10 +539,13 @@ def add_sentiment_scores(dataset, key='arg', has_2=True):
 
     sid_obj = SentimentIntensityAnalyzer()
     key_t = key.title()
-    sentiments = dataset[key + '1'
-                         ].drop_duplicates(
-                             ).apply(lambda row:
-                                     sentiment_scores(row, sid_obj))
+    all_args = pd.concat([dataset[['arg1', 'originalArg1']],
+                          dataset[['arg2','originalArg2']
+                          ].rename(columns={'arg2':'arg1',
+                                            'originalArg2':'originalArg1'})])
+    sentiments = all_args.drop_duplicates().apply(lambda row:
+                                                  sentiment_scores(row,
+                                                                   sid_obj))
     sentiments = pd.DataFrame(sentiments.tolist(),
                               columns=[
                                   key + '1',
