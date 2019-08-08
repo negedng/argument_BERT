@@ -565,5 +565,4 @@ def add_sentiment_scores(dataset, key='arg', has_2=True):
                                   'sentNeu' + key_t + '2',
                                   'sentPos' + key_t + '2',
                                   'sentCompound' + key_t + '2'])
-    dataset = pd.merge(dataset, sentiments, on=key + '2')
     return pd.merge(dataset, sentiments, on=key + '2')
