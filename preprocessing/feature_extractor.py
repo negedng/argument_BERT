@@ -143,13 +143,17 @@ def add_keyword_feature(dataset, has_2=True):
     premise_list = read_key_words(PREMISE_FILE)
     claim_list = read_key_words(CLAIM_FILE)
 
-    keywords = dataset[['arg1', 'originalArg1']
-                       ].drop_duplicates().apply(lambda row:
-                                                 including_keywords_features(
-                                                     row['arg1'],
-                                                     row['originalArg1'],
-                                                     premise_list,
-                                                     claim_list), axis=1)
+    all_args = pd.concat([dataset[['arg1', 'originalArg1']],
+                          dataset[['arg2','originalArg2']
+                          ].rename(columns={'arg2':'arg1',
+                                            'originalArg2':'originalArg1'})])
+
+    keywords = all_args.drop_duplicates().apply(lambda row:
+                                                including_keywords_features(
+                                                    row['arg1'],
+                                                    row['originalArg1'],
+                                                    premise_list,
+                                                    claim_list), axis=1)
     keywords = pd.DataFrame(keywords.tolist(), columns=['arg1',
                                                         'claimIndicatorArg1',
                                                         'premiseIndicatorArg1'
