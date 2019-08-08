@@ -13,8 +13,8 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 def load_from_directory(directory, rst_files=False, ADU=False):
     """Load all files in the directory, creates relation matrix for them"""
 
-    print 'Loading data from directory'
-    print 'Detected files: ' + str(len(os.listdir(directory)))
+    print('Loading data from directory')
+    print('Detected files: ' + str(len(os.listdir(directory))))
     data_list = list()
     for (e, annotation_file) in enumerate(os.listdir(directory)):
         if annotation_file[-7:] != 'ann.xml':
@@ -26,7 +26,7 @@ def load_from_directory(directory, rst_files=False, ADU=False):
             file_data = load_for_ADU_types(e, annotation_file_path)
         data_list = data_list + file_data
     dataFrame = pd.DataFrame.from_dict(data_list, orient='columns')
-    print 'Loaded data length: ' + str(len(dataFrame))
+    print('Loaded data length: ' + str(len(dataFrame)))
     return dataFrame
 
 

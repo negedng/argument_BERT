@@ -28,7 +28,8 @@ CLAIM_FILE = current_dir + '/claim_indicator.txt'
 
 
 def get_propositions(dataset, column='arg1',
-                     tokenizer=nltk.tokenize.word_tokenize):
+                     tokenizer=nltk.tokenize.word_tokenize,
+                     only_props=False):
     """Parse propositions
     dataset: the original dataframe
     tokenizer: nltk.tokenize.word_tokenize, bert-embedding.tokenizer, etc.
@@ -38,7 +39,18 @@ def get_propositions(dataset, column='arg1',
     """
 
     propositionSet = list(set(dataset[column]))
+
+    if column[-1] == '1':
+        column2 = column[:-1] + '2'
+        if column2 in dataset.keys():
+            propSet2 = list(set(dataset[column2]))
+            propositionSet = propositionSet + propSet2
+
+    propositionSet = list(dict.fromkeys(propositionSet))
     parsedPropositions = list()
+
+    if only_props:
+        return (propositionSet, parsedPropositions)
 
     for proposition in propositionSet:
         words = tokenizer(proposition)
@@ -143,13 +155,18 @@ def add_keyword_feature(dataset, has_2=True):
     premise_list = read_key_words(PREMISE_FILE)
     claim_list = read_key_words(CLAIM_FILE)
 
-    keywords = dataset[['arg1', 'originalArg1']
-                       ].drop_duplicates().apply(lambda row:
-                                                 including_keywords_features(
-                                                     row['arg1'],
-                                                     row['originalArg1'],
-                                                     premise_list,
-                                                     claim_list), axis=1)
+    all_args = pd.concat([dataset[['arg1', 'originalArg1']],
+                          dataset[['arg2', 'originalArg2']
+                                  ].rename(columns={
+                                    'arg2': 'arg1',
+                                    'originalArg2': 'originalArg1'})])
+
+    keywords = all_args.drop_duplicates().apply(lambda row:
+                                                including_keywords_features(
+                                                    row['arg1'],
+                                                    row['originalArg1'],
+                                                    premise_list,
+                                                    claim_list), axis=1)
     keywords = pd.DataFrame(keywords.tolist(), columns=['arg1',
                                                         'claimIndicatorArg1',
                                                         'premiseIndicatorArg1'
@@ -220,7 +237,8 @@ def check_premise_indicators(sentence, premise_list):
     """
 
     for indicator in premise_list:
-        if re.search(r"\b" + re.escape(indicator) + r"\b", sentence):
+        if re.search(r"\b" + re.escape(indicator.lower()) + r"\b",
+                     sentence.lower()):
             return 1
     return 0
 
@@ -233,7 +251,8 @@ def check_claim_indicators(sentence, claim_list):
     """
 
     for indicator in claim_list:
-        if re.search(r"\b" + re.escape(indicator) + r"\b", sentence):
+        if re.search(r"\b" + re.escape(indicator.lower()) + r"\b",
+                     sentence.lower()):
             return 1
     return 0
 
@@ -432,12 +451,12 @@ def add_bert_embeddings(dataset,
     """Add bert embeddings to the dataset. Use matching tokenizer!"""
 
     if bert_embedding is None:
-        print 'Warning! Match tokenizer to have the same propositions!'
         bert_dataset = 'book_corpus_wiki_en_cased'
         bert_embedding = BertEmbedding(model='bert_12_768_12',
                                        dataset_name=bert_dataset)
 
-    propositionSet = list(set(dataset['arg1']))
+    propositionSet, _ = get_propositions(dataset, column='arg1',
+                                         only_props=True)
 
     embeddingSet = bert_embedding(propositionSet,
                                   filter_spec_tokens=False)
@@ -479,7 +498,9 @@ def add_bert_embeddings(dataset,
             dataset = pd.merge(dataset, emb_frame, on='arg2')
 
     if original_sentence_feature:
-        original_sentences = list(set(dataset['originalArg1']))
+        original_sentences, _ = get_propositions(dataset,
+                                                 column='originalArg1',
+                                                 only_props=True)
         embeddingSet = bert_embedding(original_sentences,
                                       filter_spec_tokens=False)
 
@@ -534,11 +555,15 @@ def add_sentiment_scores(dataset, key='arg', has_2=True):
     if not has_2:
         return dataset
 
-    sentiments = sentiments.rename(columns={
-        key + '1': key + '2',
-        'sentNeg' + key_t + '1': 'sentNeg' + key_t + '2',
-        'sentNeu' + key_t + '1': 'sentNeu' + key_t + '2',
-        'sentPos' + key_t + '1': 'sentPos' + key_t + '2',
-        'sentCompound' + key_t + '1': 'sentCompound' + key_t + '2',
-        })
+    sentiments = dataset[key + '2'
+                         ].drop_duplicates(
+                             ).apply(lambda row:
+                                     sentiment_scores(row, sid_obj))
+    sentiments = pd.DataFrame(sentiments.tolist(),
+                              columns=[
+                                  key + '2',
+                                  'sentNeg' + key_t + '2',
+                                  'sentNeu' + key_t + '2',
+                                  'sentPos' + key_t + '2',
+                                  'sentCompound' + key_t + '2'])
     return pd.merge(dataset, sentiments, on=key + '2')
