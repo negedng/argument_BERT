@@ -38,7 +38,16 @@ def get_propositions(dataset, column='arg1',
     """
 
     propositionSet = list(set(dataset[column]))
+    
+    if column[-1]=='1':
+        column2 = column[:-1] + '2'
+        if column2 in dataset.keys():
+            propSet2 = list(set(dataset[column2]))
+            propositionSet = propositionSet + propSet2
+
+    propositionSet = list(dict.fromkeys(propositionSet))
     parsedPropositions = list()
+    
 
     for proposition in propositionSet:
         words = tokenizer(proposition)
