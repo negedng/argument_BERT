@@ -150,12 +150,12 @@ def trainer(directory,
                                                   bert_embedding)
     (train_data, test_data) = sk_train_test_split(train_data,
                                                   test_size=0.10)
-    print 'Train-test split:' + str(len(train_data)) + ' ' \
-        + str(len(test_data))
+    print('Train-test split:' + str(len(train_data)) + ' '
+        + str(len(test_data)))
 
     (x_data, y_data) = preparator.input_output_split(train_data)
     (x_test, y_test) = preparator.input_output_split(test_data)
-    print 'X-Y data ready: ' + str(len(x_data)) + ' ' + str(len(x_test))
+    print('X-Y data ready: ' + str(len(x_data)) + ' ' + str(len(x_test)))
 
     es = EarlyStopping('val_loss', patience=150,
                        restore_best_weights=True)
@@ -284,13 +284,13 @@ def predictor(model_path,
               ADU=False,
               verbose=1,):
     if verbose > 0:
-        print 'Start loading resources...'
+        print('Start loading resources...')
     model = load_model(model_path)
     bert_embedding = BertEmbedding(model='bert_12_768_12',
                                    dataset_name='book_corpus_wiki_en_cased',
                                    max_seq_length=35)
     if verbose > 0:
-        print 'Generate prediction...'
+        print('Generate prediction...')
     data = generate_data_with_features(arg1, arg2, originalArg1,
                                        originalArg2, bert_embedding)
     if not ADU:
@@ -298,12 +298,12 @@ def predictor(model_path,
             data, shared_feature_list=None, original_bert=True)
         prediction = model.predict(features)
         if verbose > 0:
-            print prediction
+            print(prediction)
         return prediction
     else:
         features = model_builder.select_FFNN_features(
             data, shared_feature_list=None, original_bert=True, has_2=False)
         prediction = model.predict(features)
         if verbose > 0:
-            print prediction
+            print(prediction)
         return prediction
