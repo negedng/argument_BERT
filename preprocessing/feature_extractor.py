@@ -220,7 +220,8 @@ def check_premise_indicators(sentence, premise_list):
     """
 
     for indicator in premise_list:
-        if re.search(r"\b" + re.escape(indicator) + r"\b", sentence):
+        if re.search(r"\b" + re.escape(indicator.lower()) + r"\b",
+                     sentence.lower()):
             return 1
     return 0
 
@@ -233,7 +234,8 @@ def check_claim_indicators(sentence, claim_list):
     """
 
     for indicator in claim_list:
-        if re.search(r"\b" + re.escape(indicator) + r"\b", sentence):
+        if re.search(r"\b" + re.escape(indicator.lower()) + r"\b",
+                     sentence.lower()):
             return 1
     return 0
 
