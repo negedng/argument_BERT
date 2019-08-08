@@ -39,8 +39,8 @@ def get_propositions(dataset, column='arg1',
     """
 
     propositionSet = list(set(dataset[column]))
-    
-    if column[-1]=='1':
+
+    if column[-1] == '1':
         column2 = column[:-1] + '2'
         if column2 in dataset.keys():
             propSet2 = list(set(dataset[column2]))
@@ -48,7 +48,7 @@ def get_propositions(dataset, column='arg1',
 
     propositionSet = list(dict.fromkeys(propositionSet))
     parsedPropositions = list()
-    
+
     if only_props:
         return (propositionSet, parsedPropositions)
 
@@ -156,9 +156,10 @@ def add_keyword_feature(dataset, has_2=True):
     claim_list = read_key_words(CLAIM_FILE)
 
     all_args = pd.concat([dataset[['arg1', 'originalArg1']],
-                          dataset[['arg2','originalArg2']
-                          ].rename(columns={'arg2':'arg1',
-                                            'originalArg2':'originalArg1'})])
+                          dataset[['arg2', 'originalArg2']
+                                  ].rename(columns={
+                                    'arg2': 'arg1',
+                                    'originalArg2': 'originalArg1'})])
 
     keywords = all_args.drop_duplicates().apply(lambda row:
                                                 including_keywords_features(

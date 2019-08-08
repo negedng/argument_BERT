@@ -151,7 +151,7 @@ def trainer(directory,
     (train_data, test_data) = sk_train_test_split(train_data,
                                                   test_size=0.10)
     print('Train-test split:' + str(len(train_data)) + ' '
-        + str(len(test_data)))
+          + str(len(test_data)))
 
     (x_data, y_data) = preparator.input_output_split(train_data)
     (x_test, y_test) = preparator.input_output_split(test_data)
