@@ -421,10 +421,12 @@ def find_shared_words(proposition,
 
     intersection = set(arg1Nouns).intersection(arg2Nouns)
     shared = 0
+
     if len(intersection) > 0:
         shared = 1
-
-    return [shared, len(intersection)]
+        return [shared, len(intersection)]
+    else:
+        return [0.0, 0.0]
 
 
 def add_same_sentence_feature(dataset, has_2=True):
