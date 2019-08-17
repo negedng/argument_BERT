@@ -308,7 +308,7 @@ def add_shared_words_feature(dataset,
                              ):
     """Add binary has shared noun and number of shared nouns to the dataset"""
 
-    if not has_2 or not fullText:
+    if not has_2 and not fullText:
         return dataset
     full = ''
     if fullText:
