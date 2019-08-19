@@ -17,7 +17,7 @@ def load_from_directory(directory, rst_files=False, ADU=False):
     print('Detected files: ' + str(len(os.listdir(directory))))
     data_list = list()
     for (e, annotation_file) in enumerate(os.listdir(directory)):
-        if annotation_file[-7:] != 'ann.xml':
+        if annotation_file[-7:] not in ['ann.xml', 'son.xml']:
             continue
         annotation_file_path = os.path.join(directory, annotation_file)
         if not ADU:
