@@ -198,7 +198,7 @@ def load_for_ADU_types(fileID, file_path):
     xmlData = xmltodict.parse(data)
 
     propositions = xmlData['Annotation']['Proposition']
-    if propositions[0]['TextPosition']['@start'] != '-1':
+    if 'OriginalText' in xmlData['Annotation']:
         original_text = xmlData['Annotation']['OriginalText']
         original_text2 = original_text.replace('\n', ' ')
         sent_tokenize_list = sent_tokenize(original_text)
