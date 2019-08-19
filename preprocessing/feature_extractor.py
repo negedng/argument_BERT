@@ -155,11 +155,14 @@ def add_keyword_feature(dataset, has_2=True):
     premise_list = read_key_words(PREMISE_FILE)
     claim_list = read_key_words(CLAIM_FILE)
 
-    all_args = pd.concat([dataset[['arg1', 'originalArg1']],
-                          dataset[['arg2', 'originalArg2']
-                                  ].rename(columns={
-                                    'arg2': 'arg1',
-                                    'originalArg2': 'originalArg1'})])
+    if has_2:
+        all_args = pd.concat([dataset[['arg1', 'originalArg1']],
+                              dataset[['arg2', 'originalArg2']
+                                       ].rename(columns={
+                                           'arg2': 'arg1',
+                                           'originalArg2': 'originalArg1'})])
+    else:
+        all_args = dataset[['arg1', 'originalArg1']]
 
     keywords = all_args.drop_duplicates().apply(lambda row:
                                                 including_keywords_features(
