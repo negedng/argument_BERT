@@ -172,8 +172,12 @@ def load_single_file(fileID, file_path, rst_files=False):
                 if positArg1 != -1 and positArg2 != -1:
                     posit = abs((positArg1 - positArg2) / len(original_text))
                     line_data['positionDiff'] = posit
+                    line_data['positArg1'] = positArg1 / len(original_text)
+                    line_data['positArg2'] = positArg2 / len(original_text)
                     senit = abs(sen1 - sen2)
                     line_data['sentenceDiff'] = senit / sens
+                    line_data['sen1'] = sen1 / sens
+                    line_data['sen2'] = sen2 / sens
 
                 file_data.append(line_data)
     return file_data
