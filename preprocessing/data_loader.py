@@ -59,7 +59,7 @@ def load_single_file(fileID, file_path, rst_files=False):
     relationMatrix = np.zeros(relationMatrix)
 
     propositions = xmlData['Annotation']['Proposition']
-    if propositions[0]['TextPosition']['@start'] != '-1':
+    if 'OriginalText' in xmlData['Annotation']:
         original_text = xmlData['Annotation']['OriginalText']
         original_text2 = original_text.replace('\n', ' ')
         sent_tokenize_list = sent_tokenize(original_text)
@@ -219,7 +219,7 @@ def load_for_ADU_types(fileID, file_path):
 
         arg1 = currentProposition['text']
         originalSentenceArg1 = arg1
-        positArg1 = 0
+        positArg1 = -1
 
         if currentProposition['TextPosition']['@start'] != '-1':
             for sentence in sent_tokenize_list:
