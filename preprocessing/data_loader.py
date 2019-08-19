@@ -193,6 +193,7 @@ def load_for_ADU_types(fileID, file_path):
     totalRelation = matrixLength * matrixLength
     relationMatrix = (matrixLength, matrixLength)
     relationMatrix = np.zeros(relationMatrix)
+    original_text2 = " "
 
     xmlData = xmltodict.parse(data)
 
