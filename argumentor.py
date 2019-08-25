@@ -28,7 +28,8 @@ def proposition_type(props, full_text, model_path):
     ADUs, confs = predict_type(texts, full_text, model_path)
     
     for i in range(len(props)):
-        props[i]['ADU'] = {'type': ADUs[i],
+        ADU_dict = {0:'premise', 1:'claim', 2:'conclusion'}
+        props[i]['ADU'] = {'type': ADU_dict[ADUs[i]],
                            'confidence': confs[i]}
     return props
 
