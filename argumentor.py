@@ -103,7 +103,7 @@ def predictor(model_path,
                                    max_seq_length=35)
     if verbose > 0:
         print('Generate prediction...')
-    fulls = [fullText] * len(arg1)
+    fulls = [fullText.replace('\n', ' ')] * len(arg1)
     data = data_builder.generate_data_with_features(arg1, arg2, originalArg1,
                                                     originalArg2, fullText,
                                                     bert_embedding)
