@@ -135,6 +135,7 @@ def generate_data(arg1,
                                                        row['arg2'],
                                                        row['fullText1']),
                             axis=1)
+            print(temp[:10])
             temp = pd.DataFrame(temp.tolist(), columns=['positionDiff',
                                                         'positArg1',
                                                         'positArg2',
