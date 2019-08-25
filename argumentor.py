@@ -30,7 +30,7 @@ def proposition_type(props, full_text, model_path, verbose=1):
     for i in range(len(props)):
         ADU_dict = {0:'premise', 1:'claim', 2:'conclusion'}
         props[i]['ADU'] = {'type': ADU_dict[ADUs[i]],
-                           'confidence': confs[i]}
+                           'confidence': str(confs[i])}
     return props
 
 
@@ -70,7 +70,7 @@ def relation_detection(props, text, model_path, verbose=1):
                         'typeBinary': tyB,
                         'type': tyStr,
                         'partnerID': props[arg2ID]['id'],
-                        'confidence': confs[i]}
+                        'confidence': str(confs[i])}
             props[arg1ID]['relations'].append(relation)   
     return props
             
