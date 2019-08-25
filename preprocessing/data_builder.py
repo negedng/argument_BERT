@@ -155,7 +155,7 @@ def generate_data(arg1,
 
 
 def generate_position_features(arg1, arg2=None, fullText=None):
-    if fullTex is None:
+    if fullText is None:
         return None
     orig_len = len(fullText)
     positArg1 = fullText.find(arg1)
