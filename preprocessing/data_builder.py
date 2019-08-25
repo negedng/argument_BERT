@@ -130,10 +130,11 @@ def generate_data(arg1,
     
     if fullText1 is not None:
         if arg2 is not None:
-            temp = df[['arg1','arg2','fullText1']].apply(lambda row:
+            temp = df.apply(lambda row:
                             generate_position_features(row['arg1'],
                                                        row['arg2'],
-                                                       row['fullText1']))
+                                                       row['fullText1']),
+                            axis=1)
             temp = pd.DataFrame(temp.tolist(), columns=['positionDiff',
                                                         'positArg1',
                                                         'positArg2',
@@ -150,7 +151,7 @@ def generate_data(arg1,
             df['positArg1'] = df.apply(lambda row:
                                        generate_position_features(
                                            row['arg1'], None,
-                                           row['fullText1']))
+                                           row['fullText1']), axis=1)
     
     return df
 
@@ -201,20 +202,25 @@ def generate_data_with_features(arg1,
     return data
 
 
-def remove_nongenerable_features(data, bert_embedding):
+def remove_nongenerable_features(data, bert_embedding, ADU=False):
+    arg1s = ['Because this is nice!',
+             'A so welcomed sentence',
+             'I hope it will work']
+    if not ADU:
+        arg2s = ['I hope it will work',
+                 'As this is a pretty sentence',
+                 'Global warming harms the people']
+    else:
+        arg2s = None
     basic_text = """Because this is nice! A so welcomed sentence.
                      I hope it will work. As this is a pretty sentence.
                      Global warming harms the people."""
-    generable_data = generate_data(['Because this is nice!',
-                                    'A so welcomed sentence',
-                                    'I hope it will work'],
-                                   ['I hope it will work',
-                                    'As this is a pretty sentence',
-                                    'Global warming harms the people'],
+    generable_data = generate_data(arg1s, arg2s,
                                    None, None,
                                    [basic_text, basic_text, basic_text])
     generable_data = add_features(generable_data,
-                                  bert_emb=bert_embedding)
+                                  bert_emb=bert_embedding,
+                                  has_2 = not ADU)
 
     for key in data.keys():
         if key not in generable_data.keys():

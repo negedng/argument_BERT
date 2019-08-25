@@ -48,7 +48,8 @@ def trainer(directory,
                                            bert_emb=bert_embedding)
     if train_generable:
         train_data = data_builder.remove_nongenerable_features(train_data,
-                                                               bert_embedding)
+                                                               bert_embedding,
+                                                               ADU)
     if verbose>0:
         print('Feature list:')
         print(list(train_data.keys()))
