@@ -11,7 +11,13 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 
 
 def load_from_directory(directory, rst_files=False, ADU=False):
-    """Load all files in the directory, creates relation matrix for them"""
+    """Load all files in the directory, creates relation matrix for them
+    Input:
+        directory: directory with annotation files
+        rst_file: True, if the directory stores RST files as well
+        ADU: True for proposition type data loading
+    Output:
+        dataFrame: pandas DataFrame with samples as rows"""
 
     print('Loading data from directory')
     print('Detected files: ' + str(len(os.listdir(directory))))
@@ -32,11 +38,17 @@ def load_from_directory(directory, rst_files=False, ADU=False):
 
 def load_single_file(fileID, file_path, rst_files=False):
     """Load a single file, creates relation matrix
+    Input:
+        fileID: index for the processed files
+        file_path: filename
+        rst_files: True if RST files are stored and used
     Output:
-        arg1, arg2 - the arguments
-        argumentID - specific ID for the file
-        label - relation between the arguments
-        originalArg1, originalArg2 - the original sentence for the argument
+        file_data: dictionary with the features stored:
+                   arg1, arg2, argumentationID, label,
+                   originalArg1, originalArg2, fullText1,
+                   rstCon, rstConParent - only if RST active,
+                   positionDiff, positArg1, positArg2,
+                   sentenceDiff, sen1, sen2 - only if full text exists
     """
 
     file_data = list()
@@ -184,6 +196,15 @@ def load_single_file(fileID, file_path, rst_files=False):
 
 
 def load_for_ADU_types(fileID, file_path):
+    """Loads ADU type features.
+    Input:
+        fileID - index for the processed files
+        file_path: filename
+    Output:
+        file_data: dictionary with the features stored:
+                   arg1, argumentationID, label,
+                   originalArg1, fullText1, positArg1
+    """
     file_data = list()
     relationMatrix = {}
     with open(file_path, 'r') as myfile:
@@ -245,12 +266,12 @@ def load_for_ADU_types(fileID, file_path):
     return file_data
 
 
-def fit_tokenize_length_threshold(proposition):
+def fit_tokenize_length_threshold(proposition, min_len=1, max_len=30):
     """Drop out too long tokens"""
 
-    if len(sent_tokenize(proposition)) > 1:
+    if len(sent_tokenize(proposition)) > min_len:
         return True
-    elif len(word_tokenize(proposition)) > 30:
+    elif len(word_tokenize(proposition)) > max_len:
         return True
     else:
         return False
