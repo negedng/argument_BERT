@@ -158,6 +158,7 @@ def generate_data(arg1,
 
 
 def generate_position_features(arg1, arg2=None, fullText=None):
+    print(arg1, arg2, fullText)
     if fullText is None:
         return None
     orig_len = len(fullText)
