@@ -3,6 +3,7 @@
 from argument_BERT.preprocessing import feature_extractor
 import numpy as np
 import pandas as pd
+from nltk.tokenize import sent_tokenize
 
 
 def add_features(data, has_2=True, bert_emb=None):
