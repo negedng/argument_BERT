@@ -8,6 +8,7 @@ import pandas as pd
 from bert_embedding import BertEmbedding
 from keras.models import load_model
 from datetime import datetime
+from nltk.tokenize import sent_tokenize
 
  
 def proposition_identification(text):
