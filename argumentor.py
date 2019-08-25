@@ -50,8 +50,8 @@ def relation_detection(props, text, model_path):
     arg2sID = []
     for i in range(len(props)):
         for j in range(i+1,len(props)):
-            arg1s.append(props[i])
-            arg2s.append(props[j])
+            arg1s.append(props[i]['text'])
+            arg2s.append(props[j]['text'])
             arg1sID.append(i)
             arg2sID.append(j)
     preds, confs = predict_relation(arg1s, arg2s, text, model_path)
