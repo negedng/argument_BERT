@@ -9,24 +9,6 @@ from bert_embedding import BertEmbedding
 from keras.models import load_model
 from datetime import datetime
 
-
-def load_data(directory,
-              rst_files=True,
-              attack=True,
-              bidirect='abs',
-              balance_ratio=0.5,
-              ADU=False,
-              ):
-
-    train_data = data_loader.load_from_directory(directory, rst_files, ADU)
-    if not ADU:
-        train_data = preparator.change_labels(train_data,
-                                              attack=attack,
-                                              bidirect=bidirect)
-    train_data = preparator.balance_dataset(train_data, balance_ratio)
-
-    return train_data
-
  
 def proposition_identification(text):
     sents = sent_tokenize(text)
