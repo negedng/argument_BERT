@@ -74,17 +74,19 @@ def relation_detection(props, text, model_path):
     return props
             
 
-def predict_type(list_of_props, full_text, model_path):
+def predict_type(list_of_props, full_text, model_path, verbose=1):
     chances = predictor(model_path, list_of_props,
-                        ADU=True, fullText=full_text)
+                        ADU=True, fullText=full_text,
+                        verbose=verbose)
     predictions = np.argmax(chances, axis=1)
     confidences = np.max(chances, axis=1)
     return predictions, confidences
 
 
-def predict_relation(arg1, arg2, full_text, model_path):
+def predict_relation(arg1, arg2, full_text, model_path, verbose=1):
     chances = predictor(model_path, arg1, arg2,
-                        ADU=False, fullText=full_text)
+                        ADU=False, fullText=full_text,
+                        verbose=verbose)
     predictions = np.argmax(chances, axis=1)
     confidences = np.max(chances, axis=1)
     return predictions, confidences
@@ -127,12 +129,12 @@ def predictor(model_path,
 
 
 def argumentor(text, adu_model, relation_model, corpus_name="NoName",
-               out_filename="out.json"):
+               out_filename="out.json", verbose=1):
     props = proposition_identification(text)
     
     props = proposition_position(props, text)
-    props = proposition_type(props, text, adu_model)
-    props = relation_detection(props, text, relation_model)
+    props = proposition_type(props, text, adu_model, verbose=verbose)
+    props = relation_detection(props, text, relation_model, verbose=verbose)
     
     data = {'propositions': props,
             'originalText': text,
