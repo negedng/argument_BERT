@@ -116,3 +116,8 @@ def lower_texts(dataset, columns=['arg1', 'arg2', 'originalArg1',
     for column in columns:
         dataset[column] = dataset[column].apply(lambda row: row.lower())
     return dataset
+
+
+def reset_labels(dataset):
+    dataset['label'] = dataset['originalLabel']
+    return dataset
