@@ -155,11 +155,14 @@ def add_keyword_feature(dataset, has_2=True):
     premise_list = read_key_words(PREMISE_FILE)
     claim_list = read_key_words(CLAIM_FILE)
 
-    all_args = pd.concat([dataset[['arg1', 'originalArg1']],
-                          dataset[['arg2', 'originalArg2']
-                                  ].rename(columns={
-                                    'arg2': 'arg1',
-                                    'originalArg2': 'originalArg1'})])
+    if has_2:
+        all_args = pd.concat([dataset[['arg1', 'originalArg1']],
+                              dataset[['arg2', 'originalArg2']
+                                       ].rename(columns={
+                                           'arg2': 'arg1',
+                                           'originalArg2': 'originalArg1'})])
+    else:
+        all_args = dataset[['arg1', 'originalArg1']]
 
     keywords = all_args.drop_duplicates().apply(lambda row:
                                                 including_keywords_features(
@@ -308,7 +311,7 @@ def add_shared_words_feature(dataset,
                              ):
     """Add binary has shared noun and number of shared nouns to the dataset"""
 
-    if not has_2 or not fullText:
+    if not has_2 and not fullText:
         return dataset
     full = ''
     if fullText:
@@ -421,10 +424,12 @@ def find_shared_words(proposition,
 
     intersection = set(arg1Nouns).intersection(arg2Nouns)
     shared = 0
+
     if len(intersection) > 0:
         shared = 1
-
-    return [shared, len(intersection)]
+        return [shared, len(intersection)]
+    else:
+        return [0.0, 0.0]
 
 
 def add_same_sentence_feature(dataset, has_2=True):

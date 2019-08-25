@@ -17,7 +17,7 @@ def load_from_directory(directory, rst_files=False, ADU=False):
     print('Detected files: ' + str(len(os.listdir(directory))))
     data_list = list()
     for (e, annotation_file) in enumerate(os.listdir(directory)):
-        if annotation_file[-7:] != 'ann.xml':
+        if annotation_file[-7:] not in ['ann.xml', 'son.xml']:
             continue
         annotation_file_path = os.path.join(directory, annotation_file)
         if not ADU:
@@ -59,7 +59,7 @@ def load_single_file(fileID, file_path, rst_files=False):
     relationMatrix = np.zeros(relationMatrix)
 
     propositions = xmlData['Annotation']['Proposition']
-    if propositions[0]['TextPosition']['@start'] != '-1':
+    if 'OriginalText' in xmlData['Annotation']:
         original_text = xmlData['Annotation']['OriginalText']
         original_text2 = original_text.replace('\n', ' ')
         sent_tokenize_list = sent_tokenize(original_text)
@@ -172,8 +172,12 @@ def load_single_file(fileID, file_path, rst_files=False):
                 if positArg1 != -1 and positArg2 != -1:
                     posit = abs((positArg1 - positArg2) / len(original_text))
                     line_data['positionDiff'] = posit
+                    line_data['positArg1'] = positArg1 / len(original_text)
+                    line_data['positArg2'] = positArg2 / len(original_text)
                     senit = abs(sen1 - sen2)
                     line_data['sentenceDiff'] = senit / sens
+                    line_data['sen1'] = sen1 / sens
+                    line_data['sen2'] = sen2 / sens
 
                 file_data.append(line_data)
     return file_data
@@ -193,11 +197,12 @@ def load_for_ADU_types(fileID, file_path):
     totalRelation = matrixLength * matrixLength
     relationMatrix = (matrixLength, matrixLength)
     relationMatrix = np.zeros(relationMatrix)
+    original_text2 = " "
 
     xmlData = xmltodict.parse(data)
 
     propositions = xmlData['Annotation']['Proposition']
-    if propositions[0]['TextPosition']['@start'] != '-1':
+    if 'OriginalText' in xmlData['Annotation']:
         original_text = xmlData['Annotation']['OriginalText']
         original_text2 = original_text.replace('\n', ' ')
         sent_tokenize_list = sent_tokenize(original_text)
@@ -218,7 +223,7 @@ def load_for_ADU_types(fileID, file_path):
 
         arg1 = currentProposition['text']
         originalSentenceArg1 = arg1
-        positArg1 = 0
+        positArg1 = -1
 
         if currentProposition['TextPosition']['@start'] != '-1':
             for sentence in sent_tokenize_list:
