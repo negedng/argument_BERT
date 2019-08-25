@@ -106,7 +106,7 @@ def predictor(model_path,
         print('Generate prediction...')
     fulls = [fullText.replace('\n', ' ')] * len(arg1)
     data = data_builder.generate_data_with_features(arg1, arg2, originalArg1,
-                                                    originalArg2, fullText,
+                                                    originalArg2, fulls,
                                                     bert_embedding)
     if not ADU:
         features = model_builder.select_FFNN_features(
