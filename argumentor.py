@@ -39,8 +39,8 @@ def proposition_position(props, text):
         prop_text = props[i]['text']
         s = text.find(prop_text)
         f = s + len(prop_text) - 1
-        props[i]['textPosition'] = {'start':s,
-                                'end':f}
+        props[i]['textPosition'] = {'start':str(s),
+                                'end':str(f)}
     return props
 
 
@@ -67,7 +67,7 @@ def relation_detection(props, text, model_path, verbose=1):
             tyB = preds[i] - 1
             tyStr = 'Default Inference' if tyB==0 else 'Default Conflict'
             relation = {'id': relID,
-                        'typeBinary': tyB,
+                        'typeBinary': str(tyB),
                         'type': tyStr,
                         'partnerID': props[arg2ID]['id'],
                         'confidence': str(confs[i])}
