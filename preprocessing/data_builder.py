@@ -129,7 +129,7 @@ def generate_data(arg1,
     
     if fullText1 is not None:
         if arg2 is not None:
-            temp = df.apply(lambda row:
+            temp = df[['arg1','arg2','fullText']].apply(lambda row:
                             generate_position_features(row['arg1'],
                                                        row['arg2'],
                                                        row['fullText1']))
