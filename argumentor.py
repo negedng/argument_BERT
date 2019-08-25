@@ -23,9 +23,9 @@ def proposition_identification(text):
     return props
 
 
-def proposition_type(props, full_text, model_path):
+def proposition_type(props, full_text, model_path, verbose=1):
     texts = [ prop['text'] for prop in props]
-    ADUs, confs = predict_type(texts, full_text, model_path)
+    ADUs, confs = predict_type(texts, full_text, model_path, verbose=verbose)
     
     for i in range(len(props)):
         ADU_dict = {0:'premise', 1:'claim', 2:'conclusion'}
@@ -44,7 +44,7 @@ def proposition_position(props, text):
     return props
 
 
-def relation_detection(props, text, model_path):
+def relation_detection(props, text, model_path, verbose=1):
     arg1s = []
     arg1sID = []
     arg2s = []
@@ -55,7 +55,8 @@ def relation_detection(props, text, model_path):
             arg2s.append(props[j]['text'])
             arg1sID.append(i)
             arg2sID.append(j)
-    preds, confs = predict_relation(arg1s, arg2s, text, model_path)
+    preds, confs = predict_relation(arg1s, arg2s, text, model_path,
+                                    verbose=verbose)
     
     for i in range(len(preds)):
         if preds[i] != 0:
