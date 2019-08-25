@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
 import json
-json.encoder.FLOAT_REPR = lambda x: format(x, '.5f')
+
 
 def save2file(data, filename):
     if filename[-4:]=='.xml':
@@ -47,4 +47,5 @@ def save2file(data, filename):
         if filename[-5:]!='.json':
             print("Warning: No file format specified.")
         with open(filename, 'w') as f:
+            json.encoder.FLOAT_REPR = lambda x: format(x, '.5f')
             json.dump(data, f, indent=4, sort_keys=True)
