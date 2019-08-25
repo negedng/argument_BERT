@@ -132,7 +132,7 @@ def generate_data(arg1,
             temp = df.apply(lambda row:
                             generate_position_features(row['arg1'],
                                                        row['arg2'],
-                                                       row['fullText1'])
+                                                       row['fullText1']))
             temp = pd.DataFrame(temp.tolist(), columns=['positionDiff',
                                                         'positArg1',
                                                         'positArg2',
