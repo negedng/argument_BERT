@@ -75,7 +75,7 @@ def balance_dataset(dataset, balance_ratio):
     """Reduce the number of unrelated data examples to match the related ones.
     Input:
         dataset: pandas dataframe containing the data
-        balance_ratio: precentage of the balancing -> 0.5 = equal 50-50 balncing
+        balance_ratio: precentage of the balancing: 0.5 = equal balancing
     """
 
     RELATION_RATIO = balance_ratio
