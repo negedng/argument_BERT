@@ -75,18 +75,18 @@ def trainer(directory,
         train_data = data_builder.remove_nongenerable_features(train_data,
                                                                bert_embedding,
                                                                ADU)
-    if verbose>0:
+    if verbose > 0:
         print('Feature list:')
         print(list(train_data.keys()))
     (train_data, test_data) = sk_train_test_split(train_data,
                                                   test_size=0.10)
-    if verbose>0:
-        print('Train-test split:' + str(len(train_data)) + ' '
-              + str(len(test_data)))
+    if verbose > 0:
+        print('Train-test split:' +
+              str(len(train_data)) + ' ' + str(len(test_data)))
 
     (x_data, y_data) = preparator.input_output_split(train_data)
     (x_test, y_test) = preparator.input_output_split(test_data)
-    if verbose>0:
+    if verbose > 0:
         print('X-Y data ready: ' + str(len(x_data)) + ' ' + str(len(x_test)))
 
     es = EarlyStopping('val_loss', patience=150,

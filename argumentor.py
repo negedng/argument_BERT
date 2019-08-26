@@ -10,15 +10,15 @@ from keras.models import load_model
 from datetime import datetime
 from nltk.tokenize import sent_tokenize
 
- 
+
 def proposition_identification(text):
     """Find argument propositions in text"""
     sents = sent_tokenize(text)
-  
+
     props = []
     for i in range(len(sents)):
-        next_prop = {'id' : ('T' + str(i)),
-                     'text':sents[i],
+        next_prop = {'id': ('T' + str(i)),
+                     'text': sents[i],
                      'relations': []}
         props.append(next_prop)
     return props
@@ -26,11 +26,11 @@ def proposition_identification(text):
 
 def proposition_type(props, full_text, model_path, verbose=1):
     """Identifies proposition types"""
-    texts = [ prop['text'] for prop in props]
+    texts = [prop['text'] for prop in props]
     ADUs, confs = predict_type(texts, full_text, model_path, verbose=verbose)
-    
+
     for i in range(len(props)):
-        ADU_dict = {0:'premise', 1:'claim', 2:'conclusion'}
+        ADU_dict = {0: 'premise', 1: 'claim', 2: 'conclusion'}
         props[i]['ADU'] = {'type': ADU_dict[ADUs[i]],
                            'confidence': str(confs[i])}
     return props
@@ -42,8 +42,8 @@ def proposition_position(props, text):
         prop_text = props[i]['text']
         s = text.find(prop_text)
         f = s + len(prop_text) - 1
-        props[i]['textPosition'] = {'start':str(s),
-                                'end':str(f)}
+        props[i]['textPosition'] = {'start': str(s),
+                                    'end': str(f)}
     return props
 
 
@@ -54,30 +54,30 @@ def relation_detection(props, text, model_path, verbose=1):
     arg2s = []
     arg2sID = []
     for i in range(len(props)):
-        for j in range(i+1,len(props)):
+        for j in range(i+1, len(props)):
             arg1s.append(props[i]['text'])
             arg2s.append(props[j]['text'])
             arg1sID.append(i)
             arg2sID.append(j)
     preds, confs = predict_relation(arg1s, arg2s, text, model_path,
                                     verbose=verbose)
-    
+
     for i in range(len(preds)):
         if preds[i] != 0:
             arg1ID = arg1sID[i]
             arg2ID = arg2sID[i]
-            
+
             relID = 'RT' + str(arg1ID) + '-T' + str(arg2ID)
             tyB = preds[i] - 1
-            tyStr = 'Default Inference' if tyB==0 else 'Default Conflict'
+            tyStr = 'Default Inference' if tyB == 0 else 'Default Conflict'
             relation = {'id': relID,
                         'typeBinary': str(tyB),
                         'type': tyStr,
                         'partnerID': props[arg2ID]['id'],
                         'confidence': str(confs[i])}
-            props[arg1ID]['relations'].append(relation)   
+            props[arg1ID]['relations'].append(relation)
     return props
-            
+
 
 def predict_type(list_of_props, full_text, model_path, verbose=1):
     """Model prediction for proposition types"""
@@ -148,13 +148,13 @@ def argumentor(text, adu_model, relation_model, corpus_name="NoName",
         out_filename: file to store the results. .json or .xml
         verbose: more than 0 for follow-up texts
     """
-    
+
     props = proposition_identification(text)
-    
+
     props = proposition_position(props, text)
     props = proposition_type(props, text, adu_model, verbose=verbose)
     props = relation_detection(props, text, relation_model, verbose=verbose)
-    
+
     data = {'propositions': props,
             'originalText': text,
             'corpus': corpus_name}
