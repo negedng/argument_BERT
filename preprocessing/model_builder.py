@@ -33,7 +33,16 @@ def select_argue_features(dataset,
                               ],
                           sentence_feature_list=['vector',
                                                  'pos']):
-    """Select features to match ArguE model setup"""
+    """Select features to match ArguE model setup
+    Input:
+        dataset: the dataset in pandas DataFrame
+        shared_feature_list: List of used shared features
+        sentence_feature_list: List of used token level features
+    Output:
+        sentence1: token level features for arg1
+        sentence2: token level features for arg2
+        sharedFeatures: shared sentence level features
+    """
 
     sentence1 = np.array([])
     sentence2 = np.array([])
@@ -63,7 +72,20 @@ def select_FFNN_features(dataset,
                          original_bert=False,
                          has_2=True,
                          ):
-    """Only global features"""
+    """Only sentence level features
+    Input:
+        dataset: the data in pandas DataFrame
+        shared_features: True if shared features are used
+        shared_feature_list: List of used features, if None, use all
+        original_bert: Use bert embedding for originalArg too
+        has_2: has arg2 in the input
+    Output:
+        sent1: bert for arg1
+        sent2: bert for arg2
+        orig1: bert for originalArg1
+        orig2: bert for originalArg2
+        sharedFeatures: shared global features
+    """
 
     if shared_feature_list is None:
         shared_feature_list = dataset.columns
@@ -149,7 +171,18 @@ def build_argue_RNN(lstm_input_dim,
                     loss='binary_crossentropy',
                     optimizer='adam',
                     ):
-    """ArguE model build"""
+    """ArguE model build with original hyperparameters
+    Input:
+        lstm_input_dim: pad_seq length for the tokens, tupple
+        sharedFeatures_input_dim: No. shared features, tupple
+        out_dim: No. output classes
+        units_LSTM: lstm layer unit no.
+        units_Dense: dense layer unit no.
+        loss: model loss used in training
+        optimizer: optimizer used in training
+    Output:
+        model: keras model
+    """
 
     sentence1 = Input(lstm_input_dim, name='sentence1')
     sentence2 = Input(lstm_input_dim, name='sentence2')
@@ -187,7 +220,26 @@ def build_FFNN(shared_feature_dim,
                has_2=True,
                ):
     """Model using sentence level embeddings of the 2 arguments
-       and shared features"""
+       and shared features
+    Input:
+        shared_feature_dim: tupple of the shared feature size
+        output_dim: no. classes
+        no_separate_layers: no. of layers in the bert dense part
+        separate_start_units: unit no. of the first dense layer
+        no_concat_layers: no. of layers after concatenation
+        concat_start_units: unit no. of the first dense layer of concat
+        layer_decrease_rate: decrease ratio in multiple layer parts
+        dropout_rate: see: keras Dropout
+        has_shared_features: True if there are non-bert features
+        has_original_sentences: True if the originalArg BERT used
+        no_sent_arg_layers: no. of layers for prop-orig BERT concat
+        sent_arg_start_units: unit no for proposition-origSent BERT concat
+        optimizer: optimizer used in the training
+        activation: activation function used in the training
+        has_2: True if there are arg2 features
+    Output:
+        model: Keras model
+    """
 
     # Input layers
 

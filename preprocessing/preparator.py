@@ -26,7 +26,7 @@ def change_labels(dataset,
                   save_original=True,
                   ):
     """Changes the labels depending on the classification task
-        parameter:
+     Input:
         dataset: pandas dataframe containing the data
         attack: if true, the attack label will remain in the dataset,
             default is false
@@ -56,7 +56,7 @@ def change_labels(dataset,
 
 def train_test_split(dataset, split_ratio=0.1):
     """Splits the data into training and testing, input and output
-        parameter:
+     Input:
         dataset: pandas dataframe containing the data
         split_ratio: ratio of the test data
     """
@@ -73,8 +73,9 @@ def train_test_split(dataset, split_ratio=0.1):
 
 def balance_dataset(dataset, balance_ratio):
     """Reduce the number of unrelated data examples to match the related ones.
+    Input:
         dataset: pandas dataframe containing the data
-        balancing: precentage of the balancing -> 0.5 = equal 50-50 balncing
+        balance_ratio: precentage of the balancing: 0.5 = equal balancing
     """
 
     RELATION_RATIO = balance_ratio
@@ -111,8 +112,14 @@ def balance_dataset(dataset, balance_ratio):
 
 def lower_texts(dataset, columns=['arg1', 'arg2', 'originalArg1',
                 'originalArg2']):
-    """Lower texts in arg1, arg2, originalArg1, originalArg2"""
+    """Lower texts in columns"""
 
     for column in columns:
         dataset[column] = dataset[column].apply(lambda row: row.lower())
+    return dataset
+
+
+def reset_labels(dataset):
+    """Set labels to the original labels stored in originalLabel"""
+    dataset['label'] = dataset['originalLabel']
     return dataset

@@ -405,6 +405,18 @@ def find_shared_words(proposition,
                       stemming=False,
                       ps=None,
                       ):
+    """Find shared words between prop and partner
+    Input:
+        proposition: search key
+        partner: search target
+        min_length: minimum length of the shared words
+        pos_tag_list: PoS tag for collected words, [] for all
+        stemming: True for using stemming
+        ps: PorterStemmer
+    Output:
+        sharedWords: binary
+        noSharedWords: number of shared words
+    """
 
     has_tag_list = len(pos_tag_list) > 0
     if not stemming:

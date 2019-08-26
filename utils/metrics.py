@@ -73,6 +73,13 @@ def related_unrelated_report(model,
                              y_test,
                              target_names=None,
                              ):
+    """Print Keras Classification Report info for tests
+    Input:
+        model: the model in tests
+        features_test: formated model input
+        y_test: expected output
+        target_names: class names
+    """
     prediction = model.predict(features_test)
 
     numberOfClasses = y_test.shape[1]
@@ -98,5 +105,11 @@ def related_unrelated_report(model,
 
 
 def adu_report(model, features_test, y_test):
+    """Print Keras Classification Report info for tests
+    Input:
+        model: the model in tests
+        features_test: formated model input
+        y_test: expected output
+    """
     related_unrelated_report(model, features_test, y_test, ['premise',
                              'claim', 'conclusion'])
