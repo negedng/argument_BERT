@@ -36,6 +36,7 @@ def save2file(data, filename):
                 relationE = etree.Element('Relation')
                 relationE.set('relationID', relation['id'])
                 relationE.set('type', relation['type'])
+                relationE.set('confidence', relation['confidence'])
                 relationE.set('typeBinary', str(relation['typeBinary']))
                 relationE.set('partnerID', relation['partnerID'])
                 propE.append(relationE)
