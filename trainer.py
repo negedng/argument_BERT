@@ -19,7 +19,18 @@ def load_data(directory,
               balance_ratio=0.5,
               ADU=False,
               ):
-
+    """Load data files for specific type of training
+    Input:
+        directory: stored annotation file directory
+        rst_files: True if RST files stored and used
+        attack: True for support-attack, False for related
+        bidirect: label type for relation direction
+            abs - absolute value,
+            zero - negatives zero,
+            skip - keeping original
+        balance_ratio: non-related vs others balance
+        ADU: True for proposition type classification
+    """
     train_data = data_loader.load_from_directory(directory, rst_files, ADU)
     if not ADU:
         train_data = preparator.change_labels(train_data,
@@ -38,6 +49,20 @@ def trainer(directory,
             support_attack=True,
             rst_files=True,
             verbose=0):
+    """Train a classification model using files from directory
+    Input:
+        directory: location of the annotation files
+        ADU: True for proposition type classification,
+             false for relation detection
+        save: True to save the model
+        save_dir: location to save the file (name: model_[datetime].h5
+        train_generable: True to elliminate non-generable features (e.g. RST)
+        support_attack: True for support-attack, false for related class
+        rst_files: True for using existing RST files
+        verbose: more than 0 for additional texts
+    Output:
+        Test results printed
+        Model stored if save is true"""
     bert_embedding = BertEmbedding(model='bert_12_768_12',
                                    dataset_name='book_corpus_wiki_en_cased',
                                    max_seq_length=35)

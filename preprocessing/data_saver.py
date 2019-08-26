@@ -5,6 +5,10 @@ import json
 
 
 def save2file(data, filename):
+    """Store annotation file
+    Input:
+        data: json data of the annotation
+        filename: path of file, .json or .xml"""
     if filename[-4:]=='.xml':
         root = etree.Element('Annotation')
         root.set("corpus", data['corpus'])

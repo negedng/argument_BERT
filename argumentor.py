@@ -12,6 +12,7 @@ from nltk.tokenize import sent_tokenize
 
  
 def proposition_identification(text):
+    """Find argument propositions in text"""
     sents = sent_tokenize(text)
   
     props = []
@@ -24,6 +25,7 @@ def proposition_identification(text):
 
 
 def proposition_type(props, full_text, model_path, verbose=1):
+    """Identifies proposition types"""
     texts = [ prop['text'] for prop in props]
     ADUs, confs = predict_type(texts, full_text, model_path, verbose=verbose)
     
@@ -35,6 +37,7 @@ def proposition_type(props, full_text, model_path, verbose=1):
 
 
 def proposition_position(props, text):
+    """Add proposition start and end prefixes"""
     for i in range(len(props)):
         prop_text = props[i]['text']
         s = text.find(prop_text)
@@ -45,6 +48,7 @@ def proposition_position(props, text):
 
 
 def relation_detection(props, text, model_path, verbose=1):
+    """Identifies relations between propositions"""
     arg1s = []
     arg1sID = []
     arg2s = []
@@ -76,6 +80,7 @@ def relation_detection(props, text, model_path, verbose=1):
             
 
 def predict_type(list_of_props, full_text, model_path, verbose=1):
+    """Model prediction for proposition types"""
     chances = predictor(model_path, list_of_props,
                         ADU=True, fullText=full_text,
                         verbose=verbose)
@@ -85,6 +90,7 @@ def predict_type(list_of_props, full_text, model_path, verbose=1):
 
 
 def predict_relation(arg1, arg2, full_text, model_path, verbose=1):
+    """Model prediction for relation types"""
     chances = predictor(model_path, arg1, arg2,
                         ADU=False, fullText=full_text,
                         verbose=verbose)
@@ -101,6 +107,7 @@ def predictor(model_path,
               ADU=False,
               verbose=1,
               fullText=None):
+    """Generates model readable data from propositions to predict"""
     if verbose > 0:
         print('Start loading resources...')
     model = load_model(model_path)
@@ -131,6 +138,17 @@ def predictor(model_path,
 
 def argumentor(text, adu_model, relation_model, corpus_name="NoName",
                out_filename="out.json", verbose=1):
+    """Proposition identification, proposition type classification
+        and relation detection pipeline.
+    Input:
+        text: text of the argumentation
+        adu_model: path of the proposition type predictor model
+        relation_model: path of the relation detector model
+        corpus_name: name of the file's original corpus
+        out_filename: file to store the results. .json or .xml
+        verbose: more than 0 for follow-up texts
+    """
+    
     props = proposition_identification(text)
     
     props = proposition_position(props, text)

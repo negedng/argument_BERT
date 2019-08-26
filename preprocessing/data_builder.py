@@ -7,6 +7,10 @@ from nltk.tokenize import sent_tokenize
 
 
 def add_features(data, has_2=True, bert_emb=None):
+    """Extract features from the data.
+    Input:
+        has_2: True if arg2 used
+        bert_emb: link to the BertEmbedding object"""
     has_full = 'fullText1' in data.keys()
     (propositionSet, parsedPropositions) = \
         feature_extractor.get_propositions(data)
@@ -107,6 +111,7 @@ def generate_data(arg1,
                   originalArg1=None,
                   originalArg2=None,
                   fullText1=None):
+    """Generates pandas DataFrame from lists"""
     argumentID = [0] * len(arg1)
     data = {'arg1': arg1, 'argumentationID': argumentID}
 
@@ -157,6 +162,11 @@ def generate_data(arg1,
 
 
 def generate_position_features(arg1, arg2=None, fullText=None):
+    """Add position features for single arguments
+    Input:
+        arg1: proposition 1
+        arg2: proposition 2 (can be None)
+        fullText: full text of the argumentation"""
     if fullText is None:
         return None
     orig_len = len(fullText)
@@ -196,6 +206,14 @@ def generate_data_with_features(arg1,
                                 originalArg2=None,
                                 fullText=None,
                                 bert_embedding=None):
+    """Generates data from texts, add features for the models.
+    Input:
+        arg1: proposition 1 of the argument
+        arg2: proposition 2 of the argument (optional)
+        originalArg1: original sentence of proposition 1 (arg1 if None)
+        originalArg2 original sentence of proposition 2 (arg2 if None)
+        fullText: original argumentation
+        bert_embedding: BertEmbedding object"""
     data = generate_data(arg1, arg2, originalArg1, originalArg2, fullText)
     has_2 = arg2 is not None
     data = add_features(data, has_2, bert_emb=bert_embedding)
@@ -203,6 +221,7 @@ def generate_data_with_features(arg1,
 
 
 def remove_nongenerable_features(data, bert_embedding, ADU=False):
+    """Remove features that cannot be generated using a sampe data"""
     arg1s = ['Because this is nice!',
              'A so welcomed sentence',
              'I hope it will work']
