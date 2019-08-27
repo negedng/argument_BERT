@@ -18,7 +18,7 @@ def proposition_identification(text, has_title_sentence):
     if has_title_sentence:
         sents = sents[1:]
     props = []
-    for i in range(start, len(sents)):
+    for i in range(len(sents)):
         next_prop = {'id': ('T' + str(i)),
                      'text': sents[i],
                      'relations': []}
