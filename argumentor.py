@@ -15,7 +15,8 @@ def proposition_identification(text, has_title_sentence):
     """Find argument propositions in text"""
     sents = sent_tokenize(text)
     
-    start = 1 if has_title_sentence else 0
+    if has_title_sentence:
+        sents = sents[1:]
     props = []
     for i in range(start, len(sents)):
         next_prop = {'id': ('T' + str(i)),
