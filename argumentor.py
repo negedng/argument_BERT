@@ -80,7 +80,7 @@ def relation_detection(props, text, model_path, verbose=1):
                         'typeBinary': str(tyB),
                         'type': tyStr,
                         'partnerID': props[arg2ID]['id'],
-                        'confidence': str(confs[i])}
+                        'confidence': str(all[tyB+1])}
             props[arg1ID]['relations'].append(relation)
     return props
 
