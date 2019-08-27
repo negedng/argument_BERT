@@ -11,12 +11,13 @@ from datetime import datetime
 from nltk.tokenize import sent_tokenize
 
 
-def proposition_identification(text):
+def proposition_identification(text, has_title_sentence):
     """Find argument propositions in text"""
     sents = sent_tokenize(text)
-
+    
+    start = 1 if has_title_sentence else 0
     props = []
-    for i in range(len(sents)):
+    for i in range(start, len(sents)):
         next_prop = {'id': ('T' + str(i)),
                      'text': sents[i],
                      'relations': []}
@@ -27,7 +28,8 @@ def proposition_identification(text):
 def proposition_type(props, full_text, model_path, verbose=1):
     """Identifies proposition types"""
     texts = [prop['text'] for prop in props]
-    ADUs, confs = predict_type(texts, full_text, model_path, verbose=verbose)
+    ADUs, confs, _ = predict_type(texts, full_text, model_path,
+                                  verbose=verbose)
 
     for i in range(len(props)):
         ADU_dict = {0: 'premise', 1: 'claim', 2: 'conclusion'}
@@ -59,16 +61,19 @@ def relation_detection(props, text, model_path, verbose=1):
             arg2s.append(props[j]['text'])
             arg1sID.append(i)
             arg2sID.append(j)
-    preds, confs = predict_relation(arg1s, arg2s, text, model_path,
-                                    verbose=verbose)
+    preds, confs, all = predict_relation(arg1s, arg2s, text, model_path,
+                                         verbose=verbose)
+
+    tree_edges = prim(list(np.array(all)[:,1]),
+                           arg1sID, arg2sID)
 
     for i in range(len(preds)):
-        if preds[i] != 0:
+        if tree_edges[i]:
             arg1ID = arg1sID[i]
             arg2ID = arg2sID[i]
 
             relID = 'RT' + str(arg1ID) + '-T' + str(arg2ID)
-            tyB = preds[i] - 1
+            tyB = 0 if all[i][1]>all[i][2] else 1
             tyStr = 'Default Inference' if tyB == 0 else 'Default Conflict'
             relation = {'id': relID,
                         'typeBinary': str(tyB),
@@ -86,7 +91,7 @@ def predict_type(list_of_props, full_text, model_path, verbose=1):
                         verbose=verbose)
     predictions = np.argmax(chances, axis=1)
     confidences = np.max(chances, axis=1)
-    return predictions, confidences
+    return predictions, confidences, chances
 
 
 def predict_relation(arg1, arg2, full_text, model_path, verbose=1):
@@ -96,7 +101,32 @@ def predict_relation(arg1, arg2, full_text, model_path, verbose=1):
                         verbose=verbose)
     predictions = np.argmax(chances, axis=1)
     confidences = np.max(chances, axis=1)
-    return predictions, confidences
+    return predictions, confidences, chances
+
+
+def prim(weights, node1, node2):
+    """Prim's algorithm is a greedy algorithm that 
+    finds a minimum spanning tree for a weighted undirected graph."""
+    edges_in = [False] * len(weights)
+    rem_nodes = set(node1+node2)
+    has_nodes = set([node1[0]])
+    rem_nodes.remove(node1[0])
+    max_weights = np.max(weights) + 1
+    while len(rem_nodes)>0:
+        has_node1 = [x in has_nodes for x in node1]
+        has_node2 = [x in has_nodes for x in node2]
+        between_edges = np.not_equal(has_node1,has_node2)
+        n_edg = argmin(weights, max_weights, between_edges)
+        n_node = node2[n_edg] if node1[n_edg] in has_nodes else node1[n_edg]
+        has_nodes.add(n_node)
+        rem_nodes.remove(n_node)
+        edges_in[n_edg] = True
+    return edges_in
+
+
+def argmin(a, initial, where):
+    """Argmin with mask broadcasting"""
+    return np.argmin([a[i] if where[i] else initial for i in range(len(a))])
 
 
 def predictor(model_path,
@@ -137,7 +167,7 @@ def predictor(model_path,
 
 
 def argumentor(text, adu_model, relation_model, corpus_name="NoName",
-               out_filename="out.json", verbose=1):
+               out_filename="out.json", verbose=1, has_title_sentence=False):
     """Proposition identification, proposition type classification
         and relation detection pipeline.
     Input:
@@ -149,7 +179,7 @@ def argumentor(text, adu_model, relation_model, corpus_name="NoName",
         verbose: more than 0 for follow-up texts
     """
 
-    props = proposition_identification(text)
+    props = proposition_identification(text, has_title_sentence)
 
     props = proposition_position(props, text)
     props = proposition_type(props, text, adu_model, verbose=verbose)
